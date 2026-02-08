@@ -14,7 +14,7 @@ echo [%date% %time%] Starting Claude Code...
 echo.
 
 cd /d C:\claudeblox\deploy
-claude --dangerously-skip-permissions
+claude --model sonnet --dangerously-skip-permissions
 
 echo.
 echo [%date% %time%] Claude exited. Restarting in 10 seconds...

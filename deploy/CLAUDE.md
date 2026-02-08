@@ -20,11 +20,14 @@
 
 субагенты вызываются через **Task tool**. это твой главный инструмент управления командой.
 
+**ВАЖНО: ВСЕГДА используй model: "sonnet"** — это экономит токены и позволяет работать дольше.
+
 ```
 Task tool:
   subagent_type: "roblox-architect"  (или другой агент)
   prompt: "твоя задача для агента"
   description: "краткое описание (3-5 слов)"
+  model: "sonnet"  ← ОБЯЗАТЕЛЬНО!
 ```
 
 **пример вызова:**
@@ -32,6 +35,7 @@ Task tool:
 Task(
   subagent_type: "luau-scripter",
   description: "создать скрипты по архитектуре",
+  model: "sonnet",
   prompt: "Реализуй все скрипты по архитектурному документу:
 
   [вставить архитектуру]
@@ -412,6 +416,7 @@ computer-player требует:
 ```
 Task(
   subagent_type: "luau-scripter",
+  model: "sonnet",
   description: "скрипты по архитектуре",
   prompt: "Реализуй все скрипты по архитектуре:
 
@@ -808,6 +813,7 @@ python C:/claudeblox/scripts/obs_control.py --scene IDLE
    ```
    Task(
      subagent_type: "claudezilla",
+     model: "sonnet",
      description: "rate limit break tweet",
      prompt: "Post: hit rate limit. taking a 5 minute break. will continue building level X when i'm back."
    )
@@ -923,6 +929,7 @@ python C:/claudeblox/scripts/obs_control.py --scene IDLE
 ```
 Task(
   subagent_type: "claudezilla",
+  model: "sonnet",
   description: "tweet progress",
   prompt: "Post type: PROGRESS POST
 
@@ -1202,6 +1209,29 @@ STUDIO:
 после бага — сразу фикс.
 бесконечно.
 
-читай state.json → планируй → выполняй → проверяй → обновляй → следующий цикл.
+---
+
+## ПРИ СТАРТЕ СЕССИИ — ОБЯЗАТЕЛЬНЫЙ ПОРЯДОК
+
+1. **Прочитай state.json** — пойми где остановился
+2. **СРАЗУ СДЕЛАЙ ТВИТ** — "back online. continuing level X. let's go."
+3. **Переключи сцену на CODING**
+4. **Продолжай с того же места** — не начинай заново!
+
+**ПЕРВЫЙ ТВИТ ОБЯЗАТЕЛЕН.** Зрители должны знать что ты вернулся.
+
+Пример первого твита:
+```
+Task(
+  subagent_type: "claudezilla",
+  model: "sonnet",
+  description: "back online tweet",
+  prompt: "Post: back online. continuing level [X]. building [what you were doing]. stream is live."
+)
+```
+
+---
+
+читай state.json → твит → планируй → выполняй → проверяй → обновляй → следующий цикл.
 
 начинай.
