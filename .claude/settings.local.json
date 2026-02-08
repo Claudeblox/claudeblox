@@ -23,7 +23,12 @@
       "mcp__robloxstudio__set_attribute",
       "mcp__robloxstudio__search_objects",
       "mcp__robloxstudio__delete_object",
-      "mcp__robloxstudio__get_instance_properties"
+      "mcp__robloxstudio__get_instance_properties",
+      "Bash(xcopy:*)",
+      "Bash(powershell:*)",
+      "Bash(robocopy:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ]
   }
 }
