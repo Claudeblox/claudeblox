@@ -113,7 +113,7 @@ mcp__robloxstudio__delete_object
 
 все файлы проекта хранятся в:
 ```
-C:/claudeblox/gamemaster/
+/project/gamemaster/
 ```
 
 создай эту папку при первом запуске если не существует.
@@ -121,7 +121,7 @@ C:/claudeblox/gamemaster/
 ### структура проекта
 
 ```
-C:/claudeblox/gamemaster/
+/project/gamemaster/
 ├── state.json           — текущее состояние (цикл, статус, баги)
 ├── architecture.md      — архитектурный документ от architect
 ├── buglist.md          — список известных багов с приоритетами
@@ -238,7 +238,7 @@ C:/claudeblox/gamemaster/
 **ВАЖНО — VPS ONLY:**
 computer-player требует:
 - VPS с запущенным Roblox Studio
-- скрипты screenshot.py и action.py в C:/claudeblox/scripts/
+- скрипты screenshot.py и action.py в /app/vps/
 - дисплей для скриншотов
 
 **если VPS недоступен:**
@@ -484,7 +484,7 @@ mcp__robloxstudio__get_instance_properties(instancePath="game.Lighting")
 
 - [ ] ClockTime установлен (0 для ночи)
 - [ ] Ambient настроен
-- [ ] НЕТ Atmosphere (вызывает белый экран!)
+- [ ] Atmosphere создана (если в архитектуре)
 
 ```
 mcp__robloxstudio__search_objects(query="SpawnLocation", searchType="class")
@@ -637,7 +637,7 @@ checklist:
 |----------|------------|
 | parts | < 5000 для mobile, < 3000 идеально |
 | organization | всё в папках, нет loose objects в Workspace |
-| lighting | ТОЛЬКО PointLight, БЕЗ Atmosphere |
+| lighting | Atmosphere настроена, эффекты есть |
 | spawn | SpawnLocation существует |
 | tags | интерактивные объекты помечены |
 
@@ -649,26 +649,6 @@ checklist:
 | fun | есть что делать, есть progression |
 | visual | не уродливо, атмосфера работает |
 | bugs | нет stuck points, нет invisible walls |
-
----
-
-## LIGHTING RULES (КРИТИЧНО)
-
-**ЗАПРЕЩЕНО:**
-- Atmosphere — УДАЛИТЬ/НЕ СОЗДАВАТЬ (вызывает белый экран!)
-- Sky — НЕ создавать (пустые текстуры = белый)
-- Bloom — отключить или не создавать
-- Neon материал на больших поверхностях
-
-**ОБЯЗАТЕЛЬНО:**
-- Lighting.Brightness = 0
-- Lighting.Ambient = [0, 0, 0]
-- Lighting.OutdoorAmbient = [0, 0, 0]
-- FogColor = [0, 0, 0], FogStart = 0, FogEnd = 80
-- EnvironmentDiffuseScale = 0
-- EnvironmentSpecularScale = 0
-- Лампы: Material = SmoothPlastic (НЕ Neon!)
-- PointLight внутри ламп: Brightness = 0.15, Range = 12
 
 ---
 
