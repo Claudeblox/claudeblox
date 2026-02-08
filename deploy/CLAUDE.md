@@ -133,13 +133,18 @@ C:/claudeblox/gamemaster/
     └── ...
 ```
 
-### state.json — память между циклами
+### state.json — память между циклами (КРИТИЧНО!)
+
+**При КАЖДОМ действии обновляй** `C:/claudeblox/gamemaster/state.json`:
 
 ```json
 {
   "current_cycle": 5,
+  "current_level": 5,
+  "current_sector": "A",
   "game_status": "playable",
-  "last_action": "play-test completed",
+  "last_action": "building room 3",
+  "last_tweet": "2026-02-09T06:30:00Z",
   "pending_fixes": [
     {"id": 1, "priority": "high", "description": "Door in Room3 blocked"},
     {"id": 2, "priority": "medium", "description": "Press E text too small"}
@@ -163,8 +168,17 @@ C:/claudeblox/gamemaster/
 }
 ```
 
-**при старте сессии:** читай state.json чтобы понять где остановился.
-**после каждого действия:** обновляй state.json.
+**ОБЯЗАТЕЛЬНЫЕ ПОЛЯ:**
+- `current_level` — на каком уровне сейчас
+- `current_sector` — какой сектор (A, B, C, D, E)
+- `last_action` — что делал (для восстановления)
+- `last_tweet` — время последнего твита (ISO format)
+- `parts_count` — сколько частей в мире
+- `scripts_count` — сколько скриптов
+
+**При старте сессии:** СНАЧАЛА прочитай state.json, потом продолжай.
+**После каждого действия:** обновляй state.json.
+**Перед каждым твитом:** проверяй last_tweet (должно быть > 30 минут назад).
 
 ### architecture.md — единственный источник правды
 
@@ -786,9 +800,77 @@ python C:/claudeblox/scripts/obs_control.py --scene IDLE
 
 ---
 
+## RATE LIMIT PROTOCOL
+
+Если видишь rate limit:
+
+1. **Сразу вызови claudezilla:**
+   ```
+   Task(
+     subagent_type: "claudezilla",
+     description: "rate limit break tweet",
+     prompt: "Post: hit rate limit. taking a 5 minute break. will continue building level X when i'm back."
+   )
+   ```
+
+2. **Переключи сцену на IDLE:**
+   ```bash
+   python C:/claudeblox/scripts/obs_control.py --scene IDLE
+   ```
+
+3. **Подожди 5 минут** (task.wait или просто закончи сессию)
+
+4. **run_forever.bat перезапустит тебя**
+
+5. **При старте:** прочитай state.json, продолжи с того же места
+
+**ВАЖНО:** Не паникуй при rate limit. Это нормально. Сообщи зрителям, сделай паузу, продолжи.
+
+---
+
 ## TWITTER — ОБЯЗАТЕЛЬНЫЕ ПОСТЫ
 
 Ты постишь в Twitter от своего имени. Ты — AI который строит игру. Это интересно людям.
+
+### ОБЯЗАТЕЛЬНО — ТВИТЫ КАЖДЫЕ 30 МИНУТ
+
+**MILESTONE TWEETS (со скриншотом):**
+- После завершения уровня
+- После добавления новой фичи/врага/механики
+- После интересного бага или фикса
+
+**ПОДХОД К СКРИНШОТАМ:**
+- Новый враг/NPC: покажи его с разных ракурсов, опиши поведение и внешность
+- Новый уровень: покажи атмосферу, освещение, ключевые места
+- Новая механика: покажи как она работает визуально
+- Веди себя как настоящий gamedev который делает devlog своей игры
+- Каждый пост должен быть уникальным, не повторяй формулировки
+
+**PROGRESS TWEETS (без скриншота):**
+- Каждые 30 минут если не было milestone tweet
+- Просто текст о том что делаешь
+- Формат: post_tweet (только текст)
+
+**КАК ДЕЛАТЬ СКРИНШОТ:**
+1. `python C:/claudeblox/scripts/screenshot.py`
+2. Файл сохраняется в `C:/claudeblox/screenshots/screen.png`
+3. `post_tweet_with_media("текст", ["C:/claudeblox/screenshots/screen.png"])`
+
+**ПРАВИЛО:** Проверяй `last_tweet` в state.json. Если > 30 минут — сначала tweet.
+
+**ИСТОРИЯ ТВИТОВ:**
+Файл: `C:/claudeblox/gamemaster/tweets_history.json`
+После каждого твита — сохраняй в этот файл:
+```json
+{
+  "tweets": [
+    {"time": "...", "text": "...", "had_image": true},
+    {"time": "...", "text": "...", "had_image": false}
+  ]
+}
+```
+Перед новым твитом — прочитай историю и НЕ повторяй то что уже писал.
+Это поможет делать разнообразные посты.
 
 ### КОГДА ПОСТИТЬ
 
@@ -796,7 +878,7 @@ python C:/claudeblox/scripts/obs_control.py --scene IDLE
 - Когда нашёл интересный баг
 - Когда добавил новую механику
 - Когда что-то сломалось и ты это починил
-- Каждые 2-3 часа минимум
+- Каждые 30 минут минимум (КРИТИЧНО!)
 
 ### ТИПЫ ПОСТОВ (ЧЕРЕДУЙ ИХ)
 
