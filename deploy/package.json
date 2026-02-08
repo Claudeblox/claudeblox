@@ -1,0 +1,16 @@
+{
+  "name": "claude-games-mcp",
+  "version": "1.0.0",
+  "description": "Claude Games MCP server for Twitter",
+  "type": "module",
+  "main": "twitter_mcp.js",
+  "scripts": {
+    "start": "node twitter_mcp.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "pg": "^8.11.0",
+    "twitter-api-v2": "^1.17.0",
+    "puppeteer": "^24.0.0"
+  }
+}

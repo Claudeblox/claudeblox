@@ -1,0 +1,15 @@
+{
+  "name": "claudeblox-twitter-mcp",
+  "version": "1.0.0",
+  "description": "Twitter MCP server for ClaudeBlox",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "dotenv": "^16.3.1",
+    "twitter-api-v2": "^1.15.2"
+  }
+}

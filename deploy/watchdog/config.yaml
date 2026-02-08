@@ -1,0 +1,40 @@
+# ClaudeBlox Watchdog Configuration
+
+# Claude Code settings
+claude_code:
+  command: ["claude", "--dangerously-skip-permissions"]
+  cwd: "C:/claudeblox/deploy"
+  restart_delay: 10  # seconds to wait before restart
+  rate_limit_wait: 300  # 5 minutes wait on rate limit
+
+# Roblox Studio settings
+roblox_studio:
+  process_name: "RobloxStudioBeta.exe"
+  restart_delay: 15
+
+# OBS Studio settings
+obs:
+  process_name: "obs64.exe"
+  exe_path: "C:/Program Files/obs-studio/bin/64bit/obs64.exe"
+  restart_delay: 5
+  websocket:
+    host: "localhost"
+    port: 4455
+    password: "claudeblox"
+
+# Twitter MCP settings
+twitter_mcp:
+  command: ["node", "C:/claudeblox/deploy/twitter_mcp/server.js"]
+  restart_delay: 5
+
+# General settings
+check_interval: 30  # seconds between health checks
+log_file: "C:/claudeblox/logs/watchdog.log"
+screenshot_dir: "C:/claudeblox/screenshots"
+
+# OBS Scenes
+scenes:
+  coding: "CODING"
+  playing: "PLAYING"
+  building: "BUILDING"
+  idle: "IDLE"
