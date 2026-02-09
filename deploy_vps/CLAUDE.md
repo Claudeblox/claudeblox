@@ -38,29 +38,42 @@ python C:/claudeblox/scripts/write_thought.py "your thought in English"
 
 ---
 
+## GAME BRIDGE — CRITICAL FOR PLAY-TESTING
+
+computer-player navigates using **JSON data**, not screenshots.
+
+**How it works:**
+1. `game_bridge.py` runs as HTTP server on localhost:8585
+2. Game has `GameStateBridge` LocalScript that sends player position, nearby objects, health
+3. computer-player reads `game_state.json` to know exactly where player is
+4. Screenshots are only for tweets, not navigation
+
+**BEFORE play-testing, start the bridge:**
+```bash
+python C:/claudeblox/scripts/game_bridge.py
+```
+
+**IMPORTANT:** luau-scripter MUST add GameStateBridge to every game:
+- Copy `C:/claudeblox/scripts/GameStateBridge.lua` to StarterPlayerScripts
+- Enable HttpService in Game Settings
+
+---
+
 ## SCREENSHOT WORKFLOW
 
-computer-player is the only agent who SEES the game.
+Screenshots are for tweets, not navigation.
 
 **Workflow:**
-1. computer-player takes screenshots during play-test
-2. computer-player EVALUATES each screenshot (good angle? interesting?)
-3. Good screenshots saved as: `C:/claudeblox/screenshots/good/good_N.png`
-4. claudezilla uses these for milestone tweets
+1. computer-player takes screenshots every 5-10 iterations during play
+2. Screenshots saved to: `C:/claudeblox/screenshots/cycle_XXX/`
+3. claudezilla picks best screenshots for tweets
 
-**claudezilla should NOT take random screenshots** — use what computer-player saved.
-
-**Screenshot scripts:**
+**Screenshot script:**
 ```bash
-# Full screen (for analysis)
-python C:/claudeblox/scripts/screenshot.py
-
-# Game viewport only (cropped, for tweets)
-python C:/claudeblox/scripts/screenshot_game.py
-
-# Save as good screenshot (for tweets)
-python C:/claudeblox/scripts/screenshot_game.py --good
+python C:/claudeblox/scripts/screenshot_game.py --cycle N
 ```
+
+Where N is the cycle number. Creates folder `cycle_001`, `cycle_002`, etc.
 
 ---
 

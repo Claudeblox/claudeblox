@@ -97,6 +97,83 @@ StarterGui/
   -- UI с LocalScripts
 ```
 
+---
+
+## GAME STATE BRIDGE — CRITICAL!
+
+**EVERY game MUST have GameStateBridge script for computer-player to navigate.**
+
+Create this LocalScript in StarterPlayerScripts:
+
+```lua
+--!strict
+-- GameStateBridge - sends player position to localhost for computer-player
+
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local CollectionService = game:GetService("CollectionService")
+
+local BRIDGE_URL = "http://localhost:8585"
+local player = Players.LocalPlayer
+
+local function getNearbyObjects(position: Vector3, radius: number): {any}
+    local nearby = {}
+    for _, obj in workspace:GetDescendants() do
+        if obj:IsA("BasePart") and obj.Name ~= "Terrain" then
+            local distance = (obj.Position - position).Magnitude
+            if distance <= radius then
+                local tags = CollectionService:GetTags(obj)
+                if #tags > 0 or obj.Name:find("Door") or obj.Name:find("Exit") or obj.Name:find("Collect") then
+                    table.insert(nearby, {
+                        name = obj.Name,
+                        distance = math.floor(distance),
+                        tags = tags
+                    })
+                end
+            end
+        end
+    end
+    table.sort(nearby, function(a, b) return a.distance < b.distance end)
+    local result = {}
+    for i = 1, math.min(10, #nearby) do
+        table.insert(result, nearby[i])
+    end
+    return result
+end
+
+local function sendState()
+    local character = player.Character
+    if not character then return end
+    local rootPart = character:FindFirstChild("HumanoidRootPart")
+    if not rootPart then return end
+
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    local health = humanoid and humanoid.Health or 0
+
+    local state = {
+        playerPosition = {x = math.floor(rootPart.Position.X), y = math.floor(rootPart.Position.Y), z = math.floor(rootPart.Position.Z)},
+        health = health,
+        isAlive = health > 0,
+        nearbyObjects = getNearbyObjects(rootPart.Position, 30)
+    }
+
+    pcall(function()
+        HttpService:PostAsync(BRIDGE_URL, HttpService:JSONEncode(state))
+    end)
+end
+
+task.spawn(function()
+    while true do
+        task.wait(1)
+        pcall(sendState)
+    end
+end)
+```
+
+**ALSO enable HttpService in game settings!**
+
+---
+
 **порядок создания:**
 
 1. Folders структуры
