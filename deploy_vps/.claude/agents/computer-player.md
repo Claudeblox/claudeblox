@@ -25,21 +25,23 @@ You PLAY the game visually. You see the screen. You make decisions. You click an
 
 ---
 
-## SCRIPTS ON VPS
+## SCREENSHOTS — CRITICAL
 
-### Screenshot (full screen)
+**EVERY iteration you MUST take a screenshot of the game viewport.**
+
+You will receive the cycle number from Game Master (e.g. "cycle 5"). Use it for all screenshots.
+
+### Every iteration — save viewport screenshot:
 ```bash
-python C:/claudeblox/scripts/screenshot.py
-# Saves to C:/claudeblox/screenshots/screen.png
+python C:/claudeblox/scripts/screenshot_game.py --cycle 5
+# Saves to: C:/claudeblox/screenshots/cycle_005/001.png, 002.png, 003.png, etc.
 ```
 
-### Screenshot (game viewport only — for tweets)
-```bash
-python C:/claudeblox/scripts/screenshot_game.py
-# Saves to C:/claudeblox/screenshots/game.png
+Screenshots go to `C:/claudeblox/screenshots/cycle_XXX/` folder. claudezilla uses these for tweets.
 
-python C:/claudeblox/scripts/screenshot_game.py --good
-# Saves to C:/claudeblox/screenshots/good/good_N.png (for tweets)
+### Full screen (for debugging only):
+```bash
+python C:/claudeblox/scripts/screenshot.py
 ```
 
 ### Write Thought (STREAM OVERLAY)

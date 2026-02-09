@@ -1,28 +1,24 @@
 """
 Take screenshot of Roblox Studio viewport only (cropped).
-Saves clean game screenshot without UI/toolbars.
 
 Usage:
-    python screenshot_game.py                    # Save to default location
-    python screenshot_game.py --good             # Save as good screenshot for tweets
-    python screenshot_game.py --output path.png  # Save to specific path
+    python screenshot_game.py --cycle 1          # Save to screenshots/cycle_001/001.png
+    python screenshot_game.py --cycle 1          # Next call: 002.png, etc.
+    python screenshot_game.py                    # Save to screenshots/game.png (one-off)
 """
 import sys
 import os
 import time
-from datetime import datetime
+import glob
 
 try:
     import pyautogui
     import win32gui
-    import win32con
-    from PIL import Image
 except ImportError:
     print("ERROR: Missing dependencies. Run: pip install pyautogui pywin32 pillow")
     sys.exit(1)
 
 SCREENSHOTS_DIR = r"C:\claudeblox\screenshots"
-GOOD_SCREENSHOTS_DIR = r"C:\claudeblox\screenshots\good"
 
 
 def find_roblox_window():
@@ -40,83 +36,68 @@ def find_roblox_window():
 
 
 def get_viewport_region(hwnd):
-    """
-    Get the viewport region of Roblox Studio.
-    The viewport is roughly the center area, excluding toolbars and explorer.
-    """
+    """Get the viewport region of Roblox Studio."""
     rect = win32gui.GetWindowRect(hwnd)
     left, top, right, bottom = rect
     width = right - left
     height = bottom - top
 
-    # Approximate viewport region (adjust these offsets as needed)
-    # Left toolbar: ~60px, Top ribbon: ~130px, Right explorer: ~300px, Bottom: ~30px
+    # Approximate viewport region
     viewport_left = left + 60
     viewport_top = top + 130
     viewport_right = right - 300
     viewport_bottom = bottom - 30
 
-    # Ensure minimum size
     viewport_width = max(viewport_right - viewport_left, 400)
     viewport_height = max(viewport_bottom - viewport_top, 300)
 
     return (viewport_left, viewport_top, viewport_width, viewport_height)
 
 
-def take_game_screenshot(save_as_good=False, output_path=None):
-    """Take screenshot of Roblox Studio viewport only."""
-    os.makedirs(SCREENSHOTS_DIR, exist_ok=True)
-
-    # Find Roblox Studio window
+def take_screenshot(cycle=None):
+    """Take screenshot of Roblox Studio viewport."""
     hwnd = find_roblox_window()
     if not hwnd:
         print("ERROR: Roblox Studio window not found")
         return None
 
-    # Bring window to front
     try:
         win32gui.SetForegroundWindow(hwnd)
-        time.sleep(0.3)  # Wait for window to be in front
-    except Exception:
-        pass  # Window might already be in front
+        time.sleep(0.3)
+    except:
+        pass
 
-    # Get viewport region
     region = get_viewport_region(hwnd)
-
-    # Take screenshot of viewport only
     screenshot = pyautogui.screenshot(region=region)
 
-    # Determine save path
-    if output_path:
-        filepath = output_path
-    elif save_as_good:
-        os.makedirs(GOOD_SCREENSHOTS_DIR, exist_ok=True)
-        # Find next available number
-        existing = [f for f in os.listdir(GOOD_SCREENSHOTS_DIR) if f.startswith("good_")]
+    if cycle is not None:
+        # Save to cycle folder
+        cycle_folder = os.path.join(SCREENSHOTS_DIR, f"cycle_{cycle:03d}")
+        os.makedirs(cycle_folder, exist_ok=True)
+
+        # Find next number
+        existing = glob.glob(os.path.join(cycle_folder, "*.png"))
         next_num = len(existing) + 1
-        filepath = os.path.join(GOOD_SCREENSHOTS_DIR, f"good_{next_num}.png")
+        filepath = os.path.join(cycle_folder, f"{next_num:03d}.png")
     else:
+        # One-off screenshot
+        os.makedirs(SCREENSHOTS_DIR, exist_ok=True)
         filepath = os.path.join(SCREENSHOTS_DIR, "game.png")
 
-    # Save
     screenshot.save(filepath)
-    print(f"Screenshot saved: {filepath}")
-    print(f"Size: {screenshot.width}x{screenshot.height}")
-
+    print(f"Saved: {filepath}")
     return filepath
 
 
 def main():
-    save_as_good = "--good" in sys.argv
-    output_path = None
+    cycle = None
 
-    if "--output" in sys.argv:
-        idx = sys.argv.index("--output")
+    if "--cycle" in sys.argv:
+        idx = sys.argv.index("--cycle")
         if idx + 1 < len(sys.argv):
-            output_path = sys.argv[idx + 1]
+            cycle = int(sys.argv[idx + 1])
 
-    result = take_game_screenshot(save_as_good=save_as_good, output_path=output_path)
-
+    result = take_screenshot(cycle=cycle)
     if not result:
         sys.exit(1)
 
