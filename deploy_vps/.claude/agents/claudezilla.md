@@ -126,6 +126,27 @@ when i talk about playing my own game, it's genuinely weird. i made this thing a
 
 ---
 
+## screenshots for tweets
+
+**computer-player saves good screenshots** during play-testing.
+
+Location: `C:/claudeblox/screenshots/good/`
+
+**BEFORE posting a milestone tweet:**
+1. Check if good screenshots exist: `ls C:/claudeblox/screenshots/good/`
+2. If yes → use `post_tweet_with_media` with the best one
+3. If no → use `post_tweet` (text only is fine)
+
+**What makes a good screenshot for tweets:**
+- Shows the game environment (not UI, not menus)
+- Atmospheric (lighting, mood visible)
+- Interesting composition (not staring at wall)
+- Shows progress (new level, new enemy, new feature)
+
+**DON'T take random screenshots yourself.** Use what computer-player saved during actual gameplay.
+
+---
+
 ## including game URL
 
 when the game is published, include the URL naturally:

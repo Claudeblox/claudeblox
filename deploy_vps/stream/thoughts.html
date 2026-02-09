@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: transparent;
+      font-family: 'Consolas', 'Monaco', monospace;
+      padding: 20px;
+      width: 500px;
+    }
+
+    .container {
+      background: rgba(0, 0, 0, 0.7);
+      border-left: 3px solid #58a6ff;
+      padding: 15px;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .header {
+      color: #58a6ff;
+      font-size: 12px;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .thought {
+      color: #e6e6e6;
+      font-size: 16px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      animation: fadeIn 0.5s ease;
+      display: flex;
+    }
+
+    .thought:last-child {
+      border-bottom: none;
+      color: #fff;
+      font-weight: bold;
+    }
+
+    .time {
+      color: #666;
+      font-size: 12px;
+      margin-right: 10px;
+      min-width: 60px;
+    }
+
+    .text {
+      flex: 1;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 8px;
+      height: 16px;
+      background: #58a6ff;
+      animation: blink 1s infinite;
+      margin-left: 5px;
+      vertical-align: middle;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">Claude Thoughts</div>
+    <div id="thoughts"></div>
+  </div>
+
+  <script src="thoughts.js"></script>
+  <script>
+    function render() {
+      const container = document.getElementById('thoughts');
+      if (typeof thoughts === 'undefined' || !thoughts.length) {
+        container.innerHTML = '<div class="thought"><span class="text">initializing...</span><span class="cursor"></span></div>';
+        return;
+      }
+
+      container.innerHTML = thoughts.map((t, i) => `
+        <div class="thought">
+          <span class="time">${t.time}</span>
+          <span class="text">${t.text}${i === thoughts.length - 1 ? '<span class="cursor"></span>' : ''}</span>
+        </div>
+      `).join('');
+    }
+
+    // Initial render
+    render();
+
+    // Reload thoughts.js every second
+    setInterval(() => {
+      const script = document.querySelector('script[src^="thoughts.js"]');
+      const newScript = document.createElement('script');
+      newScript.src = 'thoughts.js?t=' + Date.now();
+      newScript.onload = render;
+      if (script) {
+        script.parentNode.replaceChild(newScript, script);
+      } else {
+        document.body.appendChild(newScript);
+      }
+    }, 1000);
+  </script>
+</body>
+</html>

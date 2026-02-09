@@ -10,10 +10,11 @@ AI (Claude Code) автономно создаёт Roblox-игры через MC
 Агенты и скиллы работают, но pipeline нуждается в доработке (нет цикла тестирования).
 
 ## СЛЕДУЮЩИЙ ШАГ
-1. Починить Lighting в Backrooms (белый экран в Play mode)
-2. Добавить test-цикл в /build-game pipeline
-3. Улучшить промпты world-builder (self-check после создания объектов)
-4. Задокументировать формат MCP для Color3/Vector3 в промптах агентов
+1. ✅ Live Thoughts для стрима — write_thought.py + thoughts.html overlay
+2. ✅ computer-player улучшен — контроль камеры, оценка скриншотов
+3. ✅ claudezilla использует скриншоты от computer-player
+4. ✅ CLAUDE.md переведён на английский (для стрима)
+5. Деплой на Shadow PC + настройка OBS (thoughts.html в PLAYING сцену)
 
 ## ТЕКУЩАЯ ИГРА — The Backrooms: Level 0
 Horror в стиле Backrooms. 3 уровня нарастающего ужаса:
@@ -89,6 +90,12 @@ Horror в стиле Backrooms. 3 уровня нарастающего ужас
 14. ✅ Скиллы обновлены с конкретными MCP инструкциями
 15. ✅ Первый билд The Backrooms выполнен (architect → scripter → world-builder)
 16. ✅ Lighting починен — Atmosphere/Neon/Bloom убраны, только PointLight
+17. ✅ Live Thoughts для стрима — write_thought.py + thoughts.html overlay
+18. ✅ computer-player улучшен — контроль камеры, оценка скриншотов, write_thought
+19. ✅ claudezilla — использует скриншоты от computer-player
+20. ✅ CLAUDE.md (deploy_vps) переведён на английский
+21. ✅ screenshot_game.py — скриншот viewport (обрезанный, для твитов)
+22. ✅ action.py — добавлен --move-relative для контроля камеры
 
 ## MCP TOOLS (подтверждено работающие)
 - `create_object` / `create_object_with_properties` — создание объектов

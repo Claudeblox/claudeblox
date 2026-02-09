@@ -4,14 +4,16 @@ Action Tool
 Performs keyboard and mouse actions for computer-player agent.
 
 Usage:
-    python action.py --key w                 # Press W key
-    python action.py --key space             # Press Space
-    python action.py --key f5                # Press F5
-    python action.py --click 500 300         # Click at position
-    python action.py --move 500 300          # Move mouse to position
-    python action.py --type "hello"          # Type text
-    python action.py --hold w --duration 1.5 # Hold key for duration
-    python action.py --wait 2                # Wait 2 seconds
+    python action.py --key w                      # Press W key
+    python action.py --key space                  # Press Space
+    python action.py --key f5                     # Press F5
+    python action.py --click 500 300              # Click at position
+    python action.py --move 500 300               # Move mouse to position
+    python action.py --move-relative 0 -100       # Move mouse relative (camera look down)
+    python action.py --move-relative 0 100        # Move mouse relative (camera look up)
+    python action.py --type "hello"               # Type text
+    python action.py --hold w --duration 1.5      # Hold key for duration
+    python action.py --wait 2                     # Wait 2 seconds
 """
 
 import argparse
@@ -103,6 +105,12 @@ def move_mouse(x: int, y: int):
     print(f"Moved mouse to ({x}, {y})")
 
 
+def move_mouse_relative(dx: int, dy: int):
+    """Move mouse relative to current position (for camera control)."""
+    pyautogui.moveRel(dx, dy)
+    print(f"Moved mouse by ({dx}, {dy})")
+
+
 def drag(x1: int, y1: int, x2: int, y2: int, duration: float = 0.5):
     """Drag from one position to another."""
     pyautogui.moveTo(x1, y1)
@@ -164,6 +172,8 @@ def main():
                         help="Double click at position")
     parser.add_argument("--move", "-m", nargs=2, type=int, metavar=("X", "Y"),
                         help="Move mouse to position")
+    parser.add_argument("--move-relative", nargs=2, type=int, metavar=("DX", "DY"),
+                        help="Move mouse relative to current position (for camera control)")
     parser.add_argument("--drag", nargs=4, type=int, metavar=("X1", "Y1", "X2", "Y2"),
                         help="Drag from (x1,y1) to (x2,y2)")
     parser.add_argument("--scroll", type=int, help="Scroll amount")
@@ -195,6 +205,8 @@ def main():
         click(args.doubleclick[0], args.doubleclick[1], clicks=2)
     elif args.move:
         move_mouse(args.move[0], args.move[1])
+    elif getattr(args, 'move_relative', None):
+        move_mouse_relative(args.move_relative[0], args.move_relative[1])
     elif args.drag:
         drag(*args.drag)
     elif args.scroll is not None:
