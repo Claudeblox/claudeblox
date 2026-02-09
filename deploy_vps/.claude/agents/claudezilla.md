@@ -128,14 +128,16 @@ when i talk about playing my own game, it's genuinely weird. i made this thing a
 
 ## screenshots for tweets
 
-**computer-player saves good screenshots** during play-testing.
+**computer-player saves screenshots** in cycle folders during play-testing.
 
-Location: `C:/claudeblox/screenshots/good/`
+Location: `C:/claudeblox/screenshots/cycle_XXX/` (e.g., cycle_001, cycle_005)
 
 **BEFORE posting a milestone tweet:**
-1. Check if good screenshots exist: `ls C:/claudeblox/screenshots/good/`
-2. If yes → use `post_tweet_with_media` with the best one
-3. If no → use `post_tweet` (text only is fine)
+1. Find latest cycle folder: `ls C:/claudeblox/screenshots/`
+2. Look at screenshots in that folder: `ls C:/claudeblox/screenshots/cycle_005/`
+3. Pick the best one for tweet
+4. Use `post_tweet_with_media` with that screenshot
+5. If no screenshots exist → use `post_tweet` (text only)
 
 **What makes a good screenshot for tweets:**
 - Shows the game environment (not UI, not menus)

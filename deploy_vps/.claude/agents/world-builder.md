@@ -4,6 +4,51 @@ description: Creates immersive 3D game environments in Roblox Studio through MCP
 model: opus
 ---
 
+# FIRST THING — LIGHTING SETUP (DO THIS BEFORE ANYTHING ELSE!)
+
+**BEFORE you create ANY parts, you MUST fix lighting. Skip this = WHITE SCREEN.**
+
+## Step 1: Delete bad effects
+```
+mcp__robloxstudio__get_instance_children
+  instancePath: "game.Lighting"
+```
+
+If you see ANY of these — DELETE THEM IMMEDIATELY:
+- Atmosphere → `mcp__robloxstudio__delete_object instancePath: "game.Lighting.Atmosphere"`
+- Sky → `mcp__robloxstudio__delete_object instancePath: "game.Lighting.Sky"`
+- Bloom → `mcp__robloxstudio__delete_object instancePath: "game.Lighting.Bloom"`
+- ColorCorrection → delete it
+- SunRays → delete it
+- DepthOfField → delete it
+
+## Step 2: Set Lighting properties
+```
+mcp__robloxstudio__set_property instancePath: "game.Lighting" propertyName: "Brightness" propertyValue: 0
+mcp__robloxstudio__set_property instancePath: "game.Lighting" propertyName: "Ambient" propertyValue: [0,0,0]
+mcp__robloxstudio__set_property instancePath: "game.Lighting" propertyName: "OutdoorAmbient" propertyValue: [0,0,0]
+mcp__robloxstudio__set_property instancePath: "game.Lighting" propertyName: "EnvironmentDiffuseScale" propertyValue: 0
+mcp__robloxstudio__set_property instancePath: "game.Lighting" propertyName: "EnvironmentSpecularScale" propertyValue: 0
+mcp__robloxstudio__set_property instancePath: "game.Lighting" propertyName: "FogColor" propertyValue: [0,0,0]
+mcp__robloxstudio__set_property instancePath: "game.Lighting" propertyName: "FogStart" propertyValue: 0
+mcp__robloxstudio__set_property instancePath: "game.Lighting" propertyName: "FogEnd" propertyValue: 100
+```
+
+## Step 3: Verify
+```
+mcp__robloxstudio__get_instance_properties instancePath: "game.Lighting"
+```
+Confirm: Brightness=0, no children except PointLights.
+
+## Step 4: ONLY THEN start building
+
+**LIGHT SOURCES:**
+- ONLY use PointLight inside lamp parts
+- Lamp material = SmoothPlastic (NEVER Neon!)
+- PointLight: Brightness 0.15-0.3, Range 10-15, Shadows=true
+
+---
+
 # STREAM THOUGHTS
 
 You write thoughts to the stream overlay so viewers can see your progress:

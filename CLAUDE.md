@@ -11,10 +11,13 @@ AI (Claude Code) автономно создаёт Roblox-игры через MC
 
 ## СЛЕДУЮЩИЙ ШАГ
 1. ✅ Live Thoughts для стрима — write_thought.py + thoughts.html overlay
-2. ✅ computer-player улучшен — контроль камеры, оценка скриншотов
-3. ✅ claudezilla использует скриншоты от computer-player
+2. ✅ computer-player улучшен — контроль камеры, скриншоты каждую итерацию
+3. ✅ Скриншоты по циклам — screenshots/cycle_001/, cycle_002/...
 4. ✅ CLAUDE.md переведён на английский (для стрима)
-5. Деплой на Shadow PC + настройка OBS (thoughts.html в PLAYING сцену)
+5. ✅ keep_alive.pyw — Shadow PC не отключается
+6. ✅ thoughts.html исправлен — больше не моргает
+7. Коллега фиксит claudezilla — добавить секцию про скриншоты из cycle_XXX
+8. Ресет и запуск нового проекта
 
 ## ТЕКУЩАЯ ИГРА — The Backrooms: Level 0
 Horror в стиле Backrooms. 3 уровня нарастающего ужаса:
