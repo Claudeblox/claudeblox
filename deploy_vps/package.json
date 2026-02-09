@@ -1,0 +1,13 @@
+{
+  "name": "claudeblox",
+  "version": "1.0.0",
+  "description": "ClaudeBlox - AI builds Roblox games",
+  "type": "module",
+  "scripts": {
+    "start": "node twitter_mcp_simple.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "twitter-api-v2": "^1.17.0"
+  }
+}
