@@ -103,20 +103,19 @@ StarterGui/
 
 **EVERY game MUST have GameStateBridge script for computer-player to navigate.**
 
-Create this LocalScript in StarterPlayerScripts:
+Create this **Script** (NOT LocalScript!) in **ServerScriptService**:
 
 ```lua
 --!strict
--- GameStateBridge - sends player position to localhost for computer-player
+-- GameStateBridge - SERVER script, sends player position to localhost
 
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local CollectionService = game:GetService("CollectionService")
 
 local BRIDGE_URL = "http://localhost:8585"
-local player = Players.LocalPlayer
 
-local function getNearbyObjects(position: Vector3, radius: number): {any}
+local function getNearbyObjects(position, radius)
     local nearby = {}
     for _, obj in workspace:GetDescendants() do
         if obj:IsA("BasePart") and obj.Name ~= "Terrain" then
@@ -124,49 +123,42 @@ local function getNearbyObjects(position: Vector3, radius: number): {any}
             if distance <= radius then
                 local tags = CollectionService:GetTags(obj)
                 if #tags > 0 or obj.Name:find("Door") or obj.Name:find("Exit") or obj.Name:find("Collect") then
-                    table.insert(nearby, {
-                        name = obj.Name,
-                        distance = math.floor(distance),
-                        tags = tags
-                    })
+                    table.insert(nearby, {name = obj.Name, distance = math.floor(distance), tags = tags})
                 end
             end
         end
     end
     table.sort(nearby, function(a, b) return a.distance < b.distance end)
     local result = {}
-    for i = 1, math.min(10, #nearby) do
-        table.insert(result, nearby[i])
-    end
+    for i = 1, math.min(10, #nearby) do table.insert(result, nearby[i]) end
     return result
 end
 
 local function sendState()
-    local character = player.Character
-    if not character then return end
-    local rootPart = character:FindFirstChild("HumanoidRootPart")
-    if not rootPart then return end
+    for _, player in Players:GetPlayers() do
+        local character = player.Character
+        if not character then continue end
+        local rootPart = character:FindFirstChild("HumanoidRootPart")
+        if not rootPart then continue end
 
-    local humanoid = character:FindFirstChildOfClass("Humanoid")
-    local health = humanoid and humanoid.Health or 0
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        local health = humanoid and humanoid.Health or 0
+        local pos = rootPart.Position
 
-    local state = {
-        playerPosition = {x = math.floor(rootPart.Position.X), y = math.floor(rootPart.Position.Y), z = math.floor(rootPart.Position.Z)},
-        health = health,
-        isAlive = health > 0,
-        nearbyObjects = getNearbyObjects(rootPart.Position, 30)
-    }
-
-    pcall(function()
-        HttpService:PostAsync(BRIDGE_URL, HttpService:JSONEncode(state))
-    end)
+        local state = {
+            playerPosition = {x = math.floor(pos.X), y = math.floor(pos.Y), z = math.floor(pos.Z)},
+            health = health,
+            isAlive = health > 0,
+            nearbyObjects = getNearbyObjects(pos, 30)
+        }
+        pcall(function()
+            HttpService:PostAsync(BRIDGE_URL, HttpService:JSONEncode(state))
+        end)
+    end
 end
 
 task.spawn(function()
-    while true do
-        task.wait(1)
-        pcall(sendState)
-    end
+    while true do task.wait(1); pcall(sendState) end
 end)
 ```
 
