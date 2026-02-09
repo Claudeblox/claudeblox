@@ -1,0 +1,14 @@
+{
+  "name": "claudeblox",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "twitter": "node twitter_mcp.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-code": "latest",
+    "@modelcontextprotocol/sdk": "^0.5.0",
+    "twitter-api-v2": "^1.15.0",
+    "dotenv": "^16.0.0"
+  }
+}
