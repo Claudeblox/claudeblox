@@ -32,7 +32,6 @@
       font-size: 16px;
       padding: 8px 0;
       border-bottom: 1px solid rgba(255,255,255,0.1);
-      animation: fadeIn 0.5s ease;
       display: flex;
     }
 
@@ -40,6 +39,10 @@
       border-bottom: none;
       color: #fff;
       font-weight: bold;
+    }
+
+    .thought.new {
+      animation: fadeIn 0.5s ease;
     }
 
     .time {
@@ -80,38 +83,51 @@
     <div id="thoughts"></div>
   </div>
 
-  <script src="thoughts.js"></script>
   <script>
-    function render() {
+    let lastData = "";
+
+    async function loadThoughts() {
+      try {
+        const response = await fetch('thoughts.js?t=' + Date.now());
+        const text = await response.text();
+
+        // Only update if data changed
+        if (text === lastData) return;
+        lastData = text;
+
+        // Parse: var thoughts = [...];
+        const start = text.indexOf('[');
+        const end = text.lastIndexOf(']') + 1;
+        if (start === -1 || end === 0) return;
+
+        const thoughts = JSON.parse(text.substring(start, end));
+        render(thoughts);
+      } catch (e) {
+        // Ignore errors
+      }
+    }
+
+    function render(thoughts) {
       const container = document.getElementById('thoughts');
-      if (typeof thoughts === 'undefined' || !thoughts.length) {
+
+      if (!thoughts || !thoughts.length) {
         container.innerHTML = '<div class="thought"><span class="text">initializing...</span><span class="cursor"></span></div>';
         return;
       }
 
       container.innerHTML = thoughts.map((t, i) => `
-        <div class="thought">
+        <div class="thought${i === thoughts.length - 1 ? ' new' : ''}">
           <span class="time">${t.time}</span>
           <span class="text">${t.text}${i === thoughts.length - 1 ? '<span class="cursor"></span>' : ''}</span>
         </div>
       `).join('');
     }
 
-    // Initial render
-    render();
+    // Initial load
+    loadThoughts();
 
-    // Reload thoughts.js every second
-    setInterval(() => {
-      const script = document.querySelector('script[src^="thoughts.js"]');
-      const newScript = document.createElement('script');
-      newScript.src = 'thoughts.js?t=' + Date.now();
-      newScript.onload = render;
-      if (script) {
-        script.parentNode.replaceChild(newScript, script);
-      } else {
-        document.body.appendChild(newScript);
-      }
-    }, 1000);
+    // Check for updates every second
+    setInterval(loadThoughts, 1000);
   </script>
 </body>
 </html>
