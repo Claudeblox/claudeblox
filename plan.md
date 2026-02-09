@@ -1,5 +1,17 @@
 # ПЛАН — ФИНАЛЬНЫЙ ДЕПЛОЙ CLAUDEBLOX
 
+**СТАТУС: ГОТОВО К ТЕСТУ**
+
+## СДЕЛАНО:
+- [x] English output в CLAUDE.md
+- [x] Camera rules добавлены
+- [x] Auto-publish скрипт (publish.py)
+- [x] Twitter MCP простая версия (без database)
+- [x] IDLE сцена для OBS (idle_scene.html)
+- [x] state.json — обновляется реже (только milestones)
+
+---
+
 ## ПОДГОТОВКА
 
 ### 1. Claude Code на английском

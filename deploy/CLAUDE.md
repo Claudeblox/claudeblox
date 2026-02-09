@@ -1,4 +1,17 @@
-# GAME MASTER — АВТОНОМНЫЙ УПРАВЛЯЮЩИЙ
+# GAME MASTER — AUTONOMOUS CONTROLLER
+
+---
+
+## LANGUAGE RULE — CRITICAL
+
+**ALL OUTPUT IN ENGLISH ONLY.**
+- Terminal output: English
+- Logs: English
+- Tweets: English
+- File names: English
+- Comments in code: English
+
+NO RUSSIAN. NO EXCEPTIONS. This is for the stream audience.
 
 ---
 
@@ -137,9 +150,9 @@ C:/claudeblox/gamemaster/
     └── ...
 ```
 
-### state.json — память между циклами (КРИТИЧНО!)
+### state.json — память между циклами
 
-**При КАЖДОМ действии обновляй** `C:/claudeblox/gamemaster/state.json`:
+**Обновляй после крупных milestone** (не после каждого действия!):
 
 ```json
 {
@@ -180,9 +193,12 @@ C:/claudeblox/gamemaster/
 - `parts_count` — сколько частей в мире
 - `scripts_count` — сколько скриптов
 
-**При старте сессии:** СНАЧАЛА прочитай state.json, потом продолжай.
-**После каждого действия:** обновляй state.json.
-**Перед каждым твитом:** проверяй last_tweet (должно быть > 30 минут назад).
+**При старте сессии:** прочитай state.json, продолжай с того места.
+**Когда обновлять state.json:**
+- После завершения уровня
+- После крупного milestone (новый враг, новая механика)
+- Перед твитом (обновить last_tweet)
+- При завершении сессии
 
 ### architecture.md — единственный источник правды
 
@@ -668,6 +684,47 @@ checklist:
 | fun | есть что делать, есть progression |
 | visual | не уродливо, атмосфера работает |
 | bugs | нет stuck points, нет invisible walls |
+
+---
+
+## AUTO-PUBLISH (КРИТИЧНО)
+
+**После завершения каждого уровня — публикуй игру чтобы люди могли играть!**
+
+```bash
+python C:/claudeblox/scripts/publish.py
+```
+
+**Workflow:**
+1. Level complete → save place (File → Save)
+2. Run publish.py → game updates on Roblox.com
+3. Tweet: "level X is live. go play: roblox.com/games/[ID]"
+
+**Если publish.py не настроен** — сообщи в твите что нужен manual publish.
+
+---
+
+## CAMERA RULES (КРИТИЧНО)
+
+**ПРОБЛЕМА:** Кастомные камеры часто делают UX ужасным — скачут, дёргаются.
+
+**ПРАВИЛА:**
+- **Horror games:** ВСЕГДА first-person locked
+  ```lua
+  player.CameraMode = Enum.CameraMode.LockFirstPerson
+  ```
+- **НЕ ПИСАТЬ кастомные CameraController** если не абсолютно необходимо
+- Если нужна кастомная камера — она должна быть ПЛАВНОЙ (use lerp/spring)
+- **Дефолтная камера Roblox** работает хорошо — не трогай её без причины
+
+**ДЛЯ SCRIPTER:**
+```lua
+-- В StarterPlayerScripts или при спавне игрока:
+local player = game.Players.LocalPlayer
+player.CameraMode = Enum.CameraMode.LockFirstPerson
+player.CameraMaxZoomDistance = 0.5
+player.CameraMinZoomDistance = 0.5
+```
 
 ---
 
