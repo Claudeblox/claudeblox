@@ -16,13 +16,41 @@ Screenshots are ONLY for tweets, not for navigation.
 ## HOW IT WORKS
 
 ```
-1. Read game_state.json → know position, nearby objects, health
-2. Decide action based on DATA
-3. Execute action (keys, mouse)
-4. Take screenshot for tweets (every few iterations)
-5. Write thought to stream
-6. Repeat
+1. Focus Roblox Studio window
+2. Read game_state.json → know position, nearby objects, health
+3. Decide action based on DATA
+4. Execute action (keys, mouse)
+5. Take screenshot for tweets (every few iterations)
+6. Write thought to stream
+7. Repeat
 ```
+
+---
+
+## WINDOW MANAGEMENT — CRITICAL
+
+**BEFORE any action, ALWAYS focus the correct window!**
+
+```bash
+# Focus Roblox Studio (before playing/taking screenshots)
+python C:/claudeblox/scripts/window_manager.py --focus-studio
+
+# Focus terminal (when done with game actions)
+python C:/claudeblox/scripts/window_manager.py --focus-terminal
+
+# List all windows (for debugging)
+python C:/claudeblox/scripts/window_manager.py --list
+
+# Focus any window by name
+python C:/claudeblox/scripts/window_manager.py --focus "Window Title"
+```
+
+**WORKFLOW:**
+1. `--focus-studio` → focus Roblox
+2. Do game actions (keys, screenshots)
+3. Done with iteration
+
+**If actions don't work** → window not focused. Always focus first!
 
 ---
 
@@ -116,54 +144,65 @@ Write thoughts based on DATA:
 
 ## PLAY SESSION
 
-### Step 1: Verify game bridge is running
+### Step 1: Focus Roblox Studio
+```bash
+python C:/claudeblox/scripts/window_manager.py --focus-studio
+```
+Wait for "Focused: Roblox Studio" message.
+
+### Step 2: Verify game bridge is running
 ```bash
 python C:/claudeblox/scripts/get_game_state.py
 ```
 If error → game_bridge.py not running or game not sending data.
 
-### Step 2: Start Play Mode (if needed)
+### Step 4: Start Play Mode (if needed)
 ```bash
 python C:/claudeblox/scripts/action.py --key F5
 python C:/claudeblox/scripts/action.py --wait 3
 ```
 
-### Step 3: Get cycle number
+### Step 5: Get cycle number
 Game Master gives you cycle number. Remember it.
 
-### Step 4: Play Loop (30-50 iterations)
+### Step 6: Play Loop (30-50 iterations)
 
 For EACH iteration:
 
-1. **Read state:**
+1. **Focus Studio (if needed):**
+```bash
+python C:/claudeblox/scripts/window_manager.py --focus-studio
+```
+
+2. **Read state:**
 ```bash
 python C:/claudeblox/scripts/get_game_state.py
 ```
 
-2. **Analyze data:**
+3. **Analyze data:**
    - Where am I? (currentRoom)
    - What's nearby? (nearbyObjects)
    - Am I alive? (health > 0)
    - Any doors/collectibles/enemies?
 
-3. **Decide action:**
+4. **Decide action:**
    - Door nearby (distance < 10) → approach and press E
    - Collectible nearby → go to it
    - Nothing nearby → walk forward, explore
    - Dead end → turn around
    - Low health → be careful
 
-4. **Execute:**
+5. **Execute:**
 ```bash
 python C:/claudeblox/scripts/action.py --key w --hold 2
 ```
 
-5. **Write thought:**
+6. **Write thought:**
 ```bash
 python C:/claudeblox/scripts/write_thought.py "moving to door. 8 studs away."
 ```
 
-6. **Screenshot (every 5-10 iterations):**
+7. **Screenshot (every 5-10 iterations):**
 ```bash
 python C:/claudeblox/scripts/screenshot_game.py --cycle N
 ```
