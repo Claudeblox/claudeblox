@@ -1,14 +1,9 @@
-FROM dorowu/ubuntu-desktop-lxde-vnc:focal
+FROM kasmweb/chrome:1.15.0
 
-ENV RESOLUTION=1280x720
-ENV VNC_PASSWORD=claudeblox
-ENV USER=root
+USER root
 
-# Install socat for port forwarding
-RUN rm -f /etc/apt/sources.list.d/google-chrome.list && \
-    apt-get update && apt-get install -y socat && rm -rf /var/lib/apt/lists/*
-
+# Kasm uses KASM_PORT, we need to map it to Railway's PORT
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
-CMD ["/start.sh"]
+ENTRYPOINT ["/start.sh"]
