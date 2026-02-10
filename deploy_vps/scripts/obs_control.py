@@ -17,14 +17,28 @@ import json
 import sys
 import hashlib
 import base64
+import subprocess
+import time
 
 try:
     import websocket
 except ImportError:
     print("Installing websocket-client...")
-    import subprocess
     subprocess.check_call([sys.executable, "-m", "pip", "install", "websocket-client"])
     import websocket
+
+
+def focus_window(window_type: str):
+    """Focus window based on scene type."""
+    try:
+        if window_type == "terminal":
+            subprocess.run([sys.executable, "C:/claudeblox/scripts/window_manager.py", "--focus-terminal"],
+                          capture_output=True, timeout=5)
+        elif window_type == "studio":
+            subprocess.run([sys.executable, "C:/claudeblox/scripts/window_manager.py", "--focus-studio"],
+                          capture_output=True, timeout=5)
+    except:
+        pass  # Don't fail if window focus fails
 
 
 # OBS WebSocket configuration
@@ -132,7 +146,7 @@ class OBSController:
                 return response.get("d", {})
 
     def switch_scene(self, scene_name: str) -> bool:
-        """Switch to a scene."""
+        """Switch to a scene and focus appropriate window."""
         if scene_name not in SCENES:
             print(f"Unknown scene: {scene_name}")
             print(f"Available scenes: {list(SCENES.keys())}")
@@ -145,6 +159,16 @@ class OBSController:
 
             if result.get("requestStatus", {}).get("result"):
                 print(f"Switched to scene: {scene_name}")
+
+                # Focus appropriate window
+                time.sleep(0.3)  # Small delay for scene switch
+                if scene_name == "CODING":
+                    focus_window("terminal")
+                    print("Focused: Terminal")
+                elif scene_name in ("PLAYING", "BUILDING"):
+                    focus_window("studio")
+                    print("Focused: Roblox Studio")
+
                 return True
             else:
                 print(f"Failed to switch scene: {result}")
