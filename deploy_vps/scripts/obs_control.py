@@ -50,7 +50,7 @@ OBS_PASSWORD = "claudeblox"  # Set this in OBS WebSocket settings
 SCENES = {
     "CODING": "CODING",
     "PLAYING": "PLAYING",
-    "BUILDING": "BUILDING",
+    "BUILDING": "PLAYING",  # BUILDING uses PLAYING scene (shows Studio)
     "IDLE": "IDLE",
 }
 
