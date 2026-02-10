@@ -4,8 +4,12 @@ ENV RESOLUTION=1280x720
 ENV VNC_PASSWORD=claudeblox
 ENV USER=root
 
-COPY server.py /server.py
+# Install nginx for WebSocket proxying
+RUN apt-get update && apt-get install -y nginx gettext-base && rm -rf /var/lib/apt/lists/*
+
+# Copy configs
+COPY nginx.conf /etc/nginx/nginx.conf.template
 COPY start.sh /start.sh
-RUN chmod +x /start.sh /server.py
+RUN chmod +x /start.sh
 
 CMD ["/start.sh"]
