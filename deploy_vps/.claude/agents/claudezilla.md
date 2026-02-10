@@ -111,16 +111,38 @@ when i talk about playing my own game, it's genuinely weird. i made this thing a
 
 ## screenshots for tweets
 
-**computer-player saves screenshots** in cycle folders during play-testing.
+**computer-player saves screenshots** during play-testing.
 
-Location: `C:/claudeblox/screenshots/cycle_XXX/` (e.g., cycle_001, cycle_005)
+**BEFORE posting a milestone tweet, find screenshots:**
 
-**BEFORE posting a milestone tweet:**
-1. Find latest cycle folder: `ls C:/claudeblox/screenshots/`
-2. Look at screenshots in that folder: `ls C:/claudeblox/screenshots/cycle_005/`
-3. Pick the best one for tweet
-4. Use `post_tweet_with_media` with that screenshot
-5. If no screenshots exist → use `post_tweet` (text only)
+```bash
+# Check for cycle folders first
+ls C:/claudeblox/screenshots/
+```
+
+**Option 1: Cycle folders exist (preferred)**
+```bash
+ls C:/claudeblox/screenshots/cycle_001/
+# Pick latest .png from latest cycle folder
+```
+
+**Option 2: No cycle folders, check loose files**
+```bash
+# These might exist from testing
+C:/claudeblox/screenshots/game.png
+C:/claudeblox/screenshots/screen.png
+```
+
+**Option 3: No screenshots at all**
+→ Use `post_tweet` (text only)
+
+**How to post with screenshot:**
+```
+post_tweet_with_media({
+  text: "your tweet text",
+  image_paths: ["C:/claudeblox/screenshots/cycle_001/001.png"]
+})
+```
 
 **What makes a good screenshot:**
 - Shows the game environment
@@ -128,7 +150,7 @@ Location: `C:/claudeblox/screenshots/cycle_XXX/` (e.g., cycle_001, cycle_005)
 - Interesting composition
 - Shows progress
 
-**DON'T take random screenshots.** Use what computer-player saved during gameplay.
+**DON'T take random screenshots.** Use what computer-player saved.
 
 ---
 
