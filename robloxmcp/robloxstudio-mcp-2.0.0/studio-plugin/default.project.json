@@ -1,0 +1,10 @@
+{
+  "name": "MCPPlugin",
+  "tree": {
+    "$className": "Script",
+    "$path": "src/MCPPlugin.server.luau",
+    "modules": {
+      "$path": "src/modules"
+    }
+  }
+}

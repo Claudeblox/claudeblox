@@ -1,0 +1,1 @@
+{"version":3,"file":"studio-client.d.ts","sourceRoot":"","sources":["../../src/tools/studio-client.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,aAAa,EAAE,MAAM,sBAAsB,CAAC;AAErD,qBAAa,gBAAgB;IAC3B,OAAO,CAAC,MAAM,CAAgB;gBAElB,MAAM,EAAE,aAAa;IAI3B,OAAO,CAAC,QAAQ,EAAE,MAAM,EAAE,IAAI,EAAE,GAAG,GAAG,OAAO,CAAC,GAAG,CAAC;CAazD"}

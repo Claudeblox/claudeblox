@@ -1,0 +1,9 @@
+{
+  "name": "MCPPlugin-Dev",
+  "tree": {
+    "$className": "DataModel",
+    "ServerStorage": {
+      "$path": "src"
+    }
+  }
+}
