@@ -1,15 +1,7 @@
 #!/bin/bash
 
-# Substitute PORT into nginx config
-envsubst '${PORT}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
+# Railway provides PORT, noVNC uses HTTP_PORT
+export HTTP_PORT=${PORT:-80}
 
-# Start the desktop environment in background
-/startup.sh &
-
-# Wait for noVNC to be ready
-echo "Waiting for noVNC to start..."
-sleep 10
-
-# Start nginx on Railway's PORT
-echo "Starting nginx on PORT=$PORT"
-exec nginx -g 'daemon off;'
+echo "Starting noVNC on HTTP_PORT=$HTTP_PORT"
+exec /startup.sh
