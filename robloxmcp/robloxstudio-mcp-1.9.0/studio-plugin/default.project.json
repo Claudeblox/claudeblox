@@ -1,0 +1,6 @@
+{
+  "name": "MCPPlugin",
+  "tree": {
+    "$path": "plugin.server.luau"
+  }
+}
