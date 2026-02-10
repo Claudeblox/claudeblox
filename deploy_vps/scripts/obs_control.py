@@ -19,6 +19,7 @@ import hashlib
 import base64
 import subprocess
 import time
+import os
 
 try:
     import websocket
@@ -27,12 +28,18 @@ except ImportError:
     subprocess.check_call([sys.executable, "-m", "pip", "install", "websocket-client"])
     import websocket
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv("C:/claudeblox/.env")
+except ImportError:
+    pass  # dotenv not installed, use defaults
+
 
 def focus_window(window_type: str):
     """Focus window based on scene type."""
     try:
-        if window_type == "terminal":
-            subprocess.run([sys.executable, "C:/claudeblox/scripts/window_manager.py", "--focus-terminal"],
+        if window_type == "powershell":
+            subprocess.run([sys.executable, "C:/claudeblox/scripts/window_manager.py", "--focus", "PowerShell"],
                           capture_output=True, timeout=5)
         elif window_type == "studio":
             subprocess.run([sys.executable, "C:/claudeblox/scripts/window_manager.py", "--focus-studio"],
@@ -41,10 +48,10 @@ def focus_window(window_type: str):
         pass  # Don't fail if window focus fails
 
 
-# OBS WebSocket configuration
-OBS_HOST = "localhost"
-OBS_PORT = 4455
-OBS_PASSWORD = "claudeblox"  # Set this in OBS WebSocket settings
+# OBS WebSocket configuration - from ENV or defaults
+OBS_HOST = os.getenv("OBS_HOST", "localhost")
+OBS_PORT = int(os.getenv("OBS_PORT", "4455"))
+OBS_PASSWORD = os.getenv("OBS_PASSWORD", "claudeblox")
 
 # Scene names (must match OBS scene names exactly)
 SCENES = {
@@ -163,8 +170,8 @@ class OBSController:
                 # Focus appropriate window
                 time.sleep(0.3)  # Small delay for scene switch
                 if scene_name == "CODING":
-                    focus_window("terminal")
-                    print("Focused: Terminal")
+                    focus_window("powershell")
+                    print("Focused: PowerShell")
                 elif scene_name in ("PLAYING", "BUILDING"):
                     focus_window("studio")
                     print("Focused: Roblox Studio")
