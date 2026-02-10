@@ -5,7 +5,11 @@ ENV VNC_PASSWORD=claudeblox
 ENV USER=root
 
 # Install nginx for WebSocket proxying
-RUN apt-get update && apt-get install -y nginx gettext-base && rm -rf /var/lib/apt/lists/*
+# Remove Chrome repo to avoid GPG key error
+RUN rm -f /etc/apt/sources.list.d/google-chrome.list && \
+    apt-get update && \
+    apt-get install -y nginx gettext-base && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy configs
 COPY nginx.conf /etc/nginx/nginx.conf.template
