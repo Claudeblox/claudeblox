@@ -140,14 +140,14 @@ statusText.Font = Enum.Font.Jura
 statusText.TextXAlignment = Enum.TextXAlignment.Center
 statusText.Parent = statusContainer
 
--- Update banner (hidden by default)
+-- Update banner (PERMANENTLY DISABLED - was causing issues)
 local updateBanner = Instance.new("Frame")
 updateBanner.Size = UDim2.new(1, -20, 0, 36)
 updateBanner.Position = UDim2.new(0, 10, 0, 65)
 updateBanner.BackgroundColor3 = Color3.fromRGB(245, 158, 11)
 updateBanner.BorderSizePixel = 0
 updateBanner.Visible = false
-updateBanner.Parent = mainFrame
+updateBanner.Parent = nil -- NOT PARENTED - completely disabled
 
 local updateBannerCorner = Instance.new("UICorner")
 updateBannerCorner.CornerRadius = UDim.new(0, 6)
@@ -3344,7 +3344,7 @@ updateLink.Activated:Connect(function()
 end)
 
 updateUIState()
-checkForUpdates()
+-- checkForUpdates() -- DISABLED: causes issues, npm registry returns wrong version
 ]]></string>
     </Properties>
   </Item>
