@@ -1,12 +1,15 @@
 #!/bin/bash
 
 PORT=${PORT:-8080}
-echo "Railway PORT=$PORT"
+echo "=== Railway PORT=$PORT ==="
 
-# Patch nginx to listen on Railway's PORT instead of 80
-sed -i "s/listen 80/listen $PORT/g" /etc/nginx/sites-enabled/default
-sed -i "s/listen 443/listen $PORT/g" /etc/nginx/sites-enabled/default 2>/dev/null || true
+# Start desktop in background
+/startup.sh &
 
-echo "Nginx patched to listen on $PORT"
+# Wait for internal nginx to be ready on port 80
+echo "Waiting for nginx on port 80..."
+sleep 5
 
-exec /startup.sh
+# Forward Railway's PORT to internal nginx on 80
+echo "Starting socat: $PORT -> 80"
+exec socat TCP-LISTEN:$PORT,fork,reuseaddr TCP:127.0.0.1:80
