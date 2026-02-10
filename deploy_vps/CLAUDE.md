@@ -136,54 +136,69 @@ Task(
 - `claudezilla` — Twitter posts
 - `roblox-publisher` — publish game to Roblox
 
-### MCP Tools — Your direct access to Studio
+### MCP Tools — Official Roblox MCP Server
 
-You can directly read and check game state via MCP:
+You work through the **Official Roblox MCP Server** with **only 2 methods**:
+
+**run_code — Main tool:**
+```
+mcp__roblox-studio__run_code
+  code: "your Lua code here"
+```
+
+Use run_code for EVERYTHING:
+- Check structure
+- Read scripts
+- Count parts
+- Verify settings
+- Minor edits
+
+**Examples:**
 
 **Check structure:**
-```
-mcp__robloxstudio__get_project_structure
-  maxDepth: 10
-  scriptsOnly: false  (or true for scripts only)
+```lua
+run_code([[
+  local function getStructure(instance, depth)
+    depth = depth or 0
+    if depth > 5 then return "" end
+    local result = string.rep("  ", depth) .. instance.ClassName .. " '" .. instance.Name .. "'\n"
+    for _, child in instance:GetChildren() do
+      result = result .. getStructure(child, depth + 1)
+    end
+    return result
+  end
+  return getStructure(game:GetService("ServerScriptService"), 0)
+]])
 ```
 
 **Read script:**
-```
-mcp__robloxstudio__get_script_source
-  instancePath: "game.ServerScriptService.GameManager"
-```
-
-**Check object properties:**
-```
-mcp__robloxstudio__get_instance_properties
-  instancePath: "game.Lighting"
+```lua
+run_code([[
+  local script = game.ServerScriptService:FindFirstChild("GameManager")
+  return script and script.Source or "Not found"
+]])
 ```
 
-**Search objects:**
-```
-mcp__robloxstudio__search_objects
-  query: "Door"
-  searchType: "name"  (or "class")
-```
-
-**Check children:**
-```
-mcp__robloxstudio__get_instance_children
-  instancePath: "game.ReplicatedStorage.RemoteEvents"
+**Check Lighting:**
+```lua
+run_code([[
+  local L = game:GetService("Lighting")
+  return string.format("Brightness: %s, Atmosphere: %s",
+    L.Brightness,
+    L:FindFirstChild("Atmosphere") and "EXISTS" or "none")
+]])
 ```
 
-**Minor edits (without subagent):**
-```
-mcp__robloxstudio__set_property
-  instancePath: "game.Lighting"
-  propertyName: "ClockTime"
-  propertyValue: 0
-
-mcp__robloxstudio__delete_object
-  instancePath: "game.Workspace.Map.BrokenPart"
+**Delete object:**
+```lua
+run_code([[
+  local obj = game.Lighting:FindFirstChild("Atmosphere")
+  if obj then obj:Destroy() return "Deleted" end
+  return "Not found"
+]])
 ```
 
-**Rule:** read and verify — yourself. Create and build — via subagents.
+**Rule:** read and verify — yourself via run_code. Create and build — via subagents.
 
 ---
 

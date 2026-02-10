@@ -62,6 +62,20 @@ Horror в стиле Backrooms. 3 уровня нарастающего ужас
 - Первый месяц ~€19.99 (~$22) по акции
 - Сайт: https://shadow.tech/shadowpc/offers/
 
+### Shadow PC — ВАЖНО!
+- **НЕТ GIT** — git не установлен на Shadow PC
+- Для скачивания файлов использовать PowerShell:
+  ```powershell
+  # Скачать файл
+  Invoke-WebRequest -Uri "URL" -OutFile "path/file"
+
+  # Скачать и распаковать zip
+  Invoke-WebRequest -Uri "URL" -OutFile "temp.zip"
+  Expand-Archive -Path "temp.zip" -DestinationPath "folder"
+  Remove-Item "temp.zip"
+  ```
+- keep_alive.pyw в автозапуске (shell:startup) — держит Shadow активным
+
 ## РАЗДЕЛЕНИЕ РАБОТЫ
 
 ### Я (60-70%):
@@ -99,26 +113,96 @@ Horror в стиле Backrooms. 3 уровня нарастающего ужас
 20. ✅ CLAUDE.md (deploy_vps) переведён на английский
 21. ✅ screenshot_game.py — скриншот viewport (обрезанный, для твитов)
 22. ✅ action.py — добавлен --move-relative для контроля камеры
+23. ✅ obs_control.py — переменные из .env, фокус PowerShell на CODING сцене
+24. ✅ MCP патч 2.0.0 — таймауты убраны в http-server.js и bridge-service.js
 
-## MCP TOOLS (подтверждено работающие)
-- `create_object` / `create_object_with_properties` — создание объектов
-- `mass_create_objects_with_properties` — batch создание
-- `set_property` / `mass_set_property` — изменение свойств
-- `set_script_source` / `edit_script_lines` / `insert_script_lines` — скрипты
-- `get_script_source` — чтение скриптов
-- `get_project_structure` / `get_instance_children` — структура
-- `get_instance_properties` — свойства объекта
-- `search_objects` / `search_files` — поиск
-- `smart_duplicate` — дублирование с офсетами
-- `add_tag` / `set_attribute` — теги и атрибуты
-- `delete_object` — удаление
-- `get_place_info` — информация о плейсе
+## MCP — OFFICIAL ROBLOX MCP SERVER
 
-### MCP ИЗВЕСТНЫЕ ПРОБЛЕМЫ
-- Color3 формат: MCP принимает [R, G, B] как 0-255, но Roblox хранит 0-1. Нужно тестировать.
-- Atmosphere Color задавался как серый вместо жёлтого — формат передачи нужно уточнить.
-- Два Claude Code не могут одновременно использовать один MCP сервер — конфликт.
-- Дубликаты объектов при создании (2x Atmosphere, 2x Bloom) — агенты не проверяют существующие.
+**Мигрировали на Official Roblox MCP Server!**
+
+Теперь используем официальный MCP сервер от Roblox с **только 2 методами**:
+
+### run_code — Главный инструмент
+```
+mcp__roblox-studio__run_code
+  code: "your Lua code here"
+```
+Выполняет Lua код в Studio и возвращает результат. Используется для ВСЕГО:
+- Создание объектов (Instance.new)
+- Запись скриптов (script.Source = ...)
+- Чтение скриптов (return script.Source)
+- Проверка структуры (рекурсивный обход)
+- Изменение свойств
+- Удаление объектов
+
+### insert_model — Вставка моделей (редко)
+```
+mcp__roblox-studio__insert_model
+  model_id: "12345"
+```
+
+### Примеры run_code
+
+**Создать Part:**
+```lua
+run_code([[
+  local part = Instance.new("Part")
+  part.Name = "Wall"
+  part.Size = Vector3.new(10, 5, 1)
+  part.Anchored = true
+  part.Parent = workspace
+  return part:GetFullName()
+]])
+```
+
+**Прочитать скрипт:**
+```lua
+run_code([[
+  local script = game.ServerScriptService:FindFirstChild("GameManager")
+  return script and script.Source or "Not found"
+]])
+```
+
+**Получить структуру:**
+```lua
+run_code([[
+  local function getStructure(instance, depth)
+    depth = depth or 0
+    if depth > 5 then return "" end
+    local result = string.rep("  ", depth) .. instance.ClassName .. " '" .. instance.Name .. "'\n"
+    for _, child in instance:GetChildren() do
+      result = result .. getStructure(child, depth + 1)
+    end
+    return result
+  end
+  return getStructure(workspace, 0)
+]])
+```
+
+### Установка на Shadow PC
+
+```powershell
+# 1. Создать папки
+New-Item -ItemType Directory -Force -Path "C:\claudeblox\mcp"
+
+# 2. Скачать Official MCP Server
+$releases = Invoke-RestMethod "https://api.github.com/repos/Roblox/studio-rust-mcp-server/releases/latest"
+$asset = $releases.assets | Where-Object { $_.name -like "*windows*" }
+Invoke-WebRequest -Uri $asset.browser_download_url -OutFile "C:\claudeblox\mcp\rbx-studio-mcp.exe"
+
+# 3. Настроить Claude Desktop
+$config = @{
+    mcpServers = @{
+        "Roblox Studio" = @{
+            command = "C:\claudeblox\mcp\rbx-studio-mcp.exe"
+            args = @("--stdio")
+        }
+    }
+} | ConvertTo-Json -Depth 4
+Set-Content -Path "$env:APPDATA\Claude\claude_desktop_config.json" -Value $config
+```
+
+Плагин устанавливается автоматически при первом запуске MCP сервера.
 
 ## АРХИТЕКТУРА
 ```
@@ -161,7 +245,7 @@ Horror в стиле Backrooms. 3 уровня нарастающего ужас
 - `/dev-update` — пост в Twitter через claudezilla
 
 ## ВАЖНО
-- Все агенты используют реальные MCP tools (НЕ run_code)
+- Все агенты используют Official Roblox MCP Server с run_code (Lua код)
 - Строим из примитивов (Part, WedgePart, Cylinder) + Materials + Lighting — без кастомных мешей
 - Одна игра, итеративные улучшения (не много плохих игр)
 - Pipeline должен быть: build → test → fix → test (цикл!)

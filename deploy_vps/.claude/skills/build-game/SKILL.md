@@ -25,10 +25,32 @@ python C:/claudeblox/scripts/obs_control.py --scene CODING
 
 ### Step 1: Check Current State
 Before building, inspect what already exists in Studio:
+
+```lua
+run_code([[
+  local function getStructure(instance, depth, maxDepth)
+    depth = depth or 0
+    maxDepth = maxDepth or 5
+    if depth > maxDepth then return "" end
+
+    local indent = string.rep("  ", depth)
+    local result = indent .. instance.ClassName .. " '" .. instance.Name .. "'\n"
+
+    for _, child in instance:GetChildren() do
+      result = result .. getStructure(child, depth + 1, maxDepth)
+    end
+    return result
+  end
+
+  local result = ""
+  result = result .. "=== ServerScriptService ===\n" .. getStructure(game:GetService("ServerScriptService"), 0, 3)
+  result = result .. "\n=== ReplicatedStorage ===\n" .. getStructure(game:GetService("ReplicatedStorage"), 0, 3)
+  result = result .. "\n=== Workspace ===\n" .. getStructure(workspace, 0, 3)
+
+  return result
+]])
 ```
-mcp__robloxstudio__get_project_structure
-  maxDepth: 5
-```
+
 This determines whether we're starting fresh or adding to an existing game.
 
 ### Step 2: Architecture
@@ -47,9 +69,8 @@ python C:/claudeblox/scripts/obs_control.py --scene CODING
 
 Call the **luau-scripter** subagent with the architecture:
 - Create folder structure first (Modules, RemoteEvents)
-- Create all scripts using `create_object` + `set_script_source`
-- Create RemoteEvents using `mass_create_objects`
-- Verify with `get_project_structure(scriptsOnly=true)`
+- Create all scripts using `run_code` with Instance.new()
+- Verify scripts exist after creation
 
 ### Step 4: World
 Switch OBS to show world being built:
@@ -59,11 +80,10 @@ python C:/claudeblox/scripts/obs_control.py --scene BUILDING
 
 Call the **world-builder** subagent with the architecture:
 - Set up Lighting (NO Atmosphere — causes white washout!)
-- Build terrain/rooms using `mass_create_objects_with_properties`
+- Build terrain/rooms using `run_code` with Instance.new()
 - Add PointLights inside lamp parts (Brightness 0.1-0.3, Range 10-15)
 - Create UI elements in StarterGui
 - Tag interactive objects, set attributes
-- Verify part count with `get_project_structure`
 
 **CRITICAL LIGHTING RULES:**
 - Do NOT create Atmosphere (any Density causes white)
@@ -74,11 +94,56 @@ Call the **world-builder** subagent with the architecture:
 - FogColor = [0,0,0], FogEnd = 80
 
 ### Step 5: Verify
-After both agents finish:
-- `get_project_structure(maxDepth=10)` — full structure check
-- `get_project_structure(scriptsOnly=true)` — all scripts present
-- Spot-check a few scripts with `get_script_source`
-- Verify no Atmosphere exists in Lighting
+After both agents finish, verify via run_code:
+
+```lua
+run_code([[
+  local stats = {scripts = 0, parts = 0, remotes = 0}
+
+  -- Count scripts
+  local function countScripts(instance)
+    if instance:IsA("LuaSourceContainer") then
+      stats.scripts = stats.scripts + 1
+    end
+    for _, child in instance:GetChildren() do
+      countScripts(child)
+    end
+  end
+  countScripts(game:GetService("ServerScriptService"))
+  countScripts(game:GetService("ReplicatedStorage"))
+  countScripts(game:GetService("StarterPlayer"))
+  countScripts(game:GetService("StarterGui"))
+
+  -- Count parts
+  for _, obj in workspace:GetDescendants() do
+    if obj:IsA("BasePart") then
+      stats.parts = stats.parts + 1
+    end
+  end
+
+  -- Count RemoteEvents
+  local function countRemotes(instance)
+    if instance:IsA("RemoteEvent") or instance:IsA("RemoteFunction") then
+      stats.remotes = stats.remotes + 1
+    end
+    for _, child in instance:GetChildren() do
+      countRemotes(child)
+    end
+  end
+  countRemotes(game:GetService("ReplicatedStorage"))
+
+  -- Check Lighting
+  local Lighting = game:GetService("Lighting")
+  local hasAtmosphere = Lighting:FindFirstChild("Atmosphere") ~= nil
+
+  return string.format(
+    "Scripts: %d\nParts: %d\nRemoteEvents: %d\nAtmosphere: %s\nLighting.Brightness: %s",
+    stats.scripts, stats.parts, stats.remotes,
+    hasAtmosphere and "EXISTS (BAD!)" or "none (good)",
+    Lighting.Brightness
+  )
+]])
+```
 
 ### Step 6: Tweet Progress
 Call **claudezilla** agent or use Twitter MCP to post about what was built.
@@ -88,7 +153,7 @@ Return summary of what was created:
 ```
 BUILD COMPLETE
 
-Scripts: X created (Y total lines)
+Scripts: X created
 Parts: X created
 UI Elements: X
 RemoteEvents: X
