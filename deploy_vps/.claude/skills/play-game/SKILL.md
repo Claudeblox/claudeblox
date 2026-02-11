@@ -24,12 +24,26 @@ Switch to PLAYING scene so viewers see the gameplay:
 python C:/claudeblox/scripts/obs_control.py --scene PLAYING
 ```
 
-### Step 1: Enter Play Mode
-Press F5 to start the game:
+### Step 1: Enter Play Mode (CRITICAL!)
+**MUST press F5 to start the game before any gameplay.**
+
+Write to actions.txt:
+```
+PLAY
+WAIT 3
+SCREENSHOT start
+```
+
+Then execute:
+```bash
+python C:/claudeblox/scripts/execute_actions.py
+```
+
+Or manually:
 ```bash
 python C:/claudeblox/scripts/action.py --key f5
-python C:/claudeblox/scripts/action.py --wait 3
 ```
+Wait 3 seconds for game to load.
 
 ### Step 2: Verify Game Loaded
 Take a screenshot and verify the game is running:
@@ -38,37 +52,70 @@ python C:/claudeblox/scripts/screenshot.py
 ```
 Then read `C:/claudeblox/screenshots/screen.png` to see if game loaded.
 
+**What to check:**
+- Player character visible
+- UI elements present
+- Game world loaded (not gray/loading screen)
+
 ### Step 3: Play Loop (20-50 iterations)
+
+Use execute_actions.py with actions.txt for batched actions:
+
+**Example actions.txt:**
 ```
-1. Take screenshot:
-   python C:/claudeblox/scripts/screenshot.py
-
-2. Read C:/claudeblox/screenshots/screen.png (Claude is multimodal)
-
-3. Analyze what you see:
-   - Where is the player?
-   - What's around them?
-   - Are there dangers?
-   - Is there something to interact with?
-
-4. Decide and execute action:
-   - Move: python C:/claudeblox/scripts/action.py --key w
-   - Jump: python C:/claudeblox/scripts/action.py --key space
-   - Interact: python C:/claudeblox/scripts/action.py --key e
-   - Look: python C:/claudeblox/scripts/action.py --move X Y
-   - Click: python C:/claudeblox/scripts/action.py --click X Y
-
-5. Wait briefly:
-   python C:/claudeblox/scripts/action.py --wait 0.5
-
-6. Repeat
+THOUGHT "exploring the first room"
+FORWARD 1
+TURN_RIGHT 45
+SCREENSHOT room1
+WAIT 0.5
+FLASHLIGHT
+FORWARD 2
+INTERACT
 ```
 
-### Step 4: Exit Play Mode
+**Available commands:**
+- `FORWARD [seconds]` - move forward (default 1s)
+- `BACK [seconds]` - move backward
+- `LEFT [seconds]` - strafe left
+- `RIGHT [seconds]` - strafe right
+- `TURN_LEFT [degrees]` - turn camera left (default 45)
+- `TURN_RIGHT [degrees]` - turn camera right
+- `TURN_AROUND` - 180 degree turn
+- `JUMP` - press space
+- `INTERACT` - press E
+- `FLASHLIGHT` - press F
+- `SPRINT_FORWARD [seconds]` - run forward with shift
+- `WAIT [seconds]` - pause
+- `SCREENSHOT [name]` - take screenshot
+- `THOUGHT "text"` - write to stream overlay
+- `PLAY` - press F5 (enter play mode)
+- `STOP` - press Shift+F5 (exit play mode)
+- `KEY [key]` - press any key
+
+**Workflow:**
+1. Write commands to `C:/claudeblox/actions.txt`
+2. Run `python C:/claudeblox/scripts/execute_actions.py`
+3. Actions file is deleted after execution
+4. Take screenshot, analyze, repeat
+
+### Step 4: Exit Play Mode (CRITICAL!)
+**MUST exit Play mode after testing is complete.**
+
+Write to actions.txt:
+```
+SCREENSHOT final
+THOUGHT "play session complete"
+STOP
+```
+
+Then execute:
 ```bash
-python C:/claudeblox/scripts/action.py --key escape
-python C:/claudeblox/scripts/action.py --wait 1
-python C:/claudeblox/scripts/action.py --key f5
+python C:/claudeblox/scripts/execute_actions.py
+```
+
+Or manually:
+```bash
+python C:/claudeblox/scripts/action.py --key shift+f5
 ```
 
 ### Step 5: Switch OBS Back
@@ -113,3 +160,10 @@ Overall Impression:
 Suggestions for next iteration:
 - [specific improvements to make]
 ```
+
+## Important Notes
+
+1. **Always PLAY before testing** - Game won't respond to inputs in Editor mode
+2. **Always STOP after testing** - Don't leave game running
+3. **Use THOUGHT for stream** - Viewers see your thoughts
+4. **Save good screenshots** - They're used for tweets later

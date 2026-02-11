@@ -93,7 +93,25 @@ Call the **world-builder** subagent with the architecture:
 - Lighting.Brightness = 0, Ambient = [0,0,0]
 - FogColor = [0,0,0], FogEnd = 80
 
-### Step 5: Verify
+### Step 5: Screenshots for Twitter
+After world-builder finishes, take promotional screenshots:
+
+**Option A: Use showcase-photographer agent**
+Call **showcase-photographer** subagent to take screenshots of CameraPoints created by world-builder:
+- Finds all objects tagged "CameraPoint"
+- Enables ShowcaseLight temporarily for each shot
+- Takes screenshot, disables light
+- Saves to `C:/claudeblox/screenshots/showcase/`
+
+**Option B: Simple screenshots**
+If no CameraPoints exist, take basic screenshots:
+```bash
+python C:/claudeblox/scripts/screenshot_game.py --cycle 1 --name overview
+```
+
+Screenshots are used by claudezilla for milestone tweets.
+
+### Step 6: Verify
 After both agents finish, verify via run_code:
 
 ```lua
@@ -145,10 +163,11 @@ run_code([[
 ]])
 ```
 
-### Step 6: Tweet Progress
+### Step 7: Tweet Progress
 Call **claudezilla** agent or use Twitter MCP to post about what was built.
+Use screenshots from `C:/claudeblox/screenshots/showcase/` for milestone tweets.
 
-### Step 7: Report
+### Step 8: Report
 Return summary of what was created:
 ```
 BUILD COMPLETE

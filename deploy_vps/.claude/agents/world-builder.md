@@ -38,7 +38,45 @@ run_code([[
 ]])
 ```
 
-## Step 2: Verify
+## Step 2: Create EditorLighting Script
+
+This script makes Editor mode bright (so you can see what you're building) but Play mode dark (for horror atmosphere):
+
+```lua
+run_code([[
+  local ServerScriptService = game:GetService("ServerScriptService")
+
+  -- Check if already exists
+  if ServerScriptService:FindFirstChild("EditorLighting") then
+    return "EditorLighting already exists"
+  end
+
+  local script = Instance.new("Script")
+  script.Name = "EditorLighting"
+  script.Source = [[
+-- EditorLighting - bright in Editor, dark in Play
+local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
+
+if RunService:IsRunning() then
+  -- PLAY MODE - dark horror atmosphere
+  Lighting.Brightness = 0
+  Lighting.Ambient = Color3.fromRGB(0, 0, 0)
+  Lighting.OutdoorAmbient = Color3.fromRGB(0, 0, 0)
+else
+  -- EDITOR MODE - bright for building
+  Lighting.Brightness = 1
+  Lighting.Ambient = Color3.fromRGB(100, 100, 100)
+  Lighting.OutdoorAmbient = Color3.fromRGB(80, 80, 80)
+end
+]]
+  script.Parent = ServerScriptService
+
+  return "EditorLighting script created"
+]])
+```
+
+## Step 3: Verify
 
 ```lua
 run_code([[

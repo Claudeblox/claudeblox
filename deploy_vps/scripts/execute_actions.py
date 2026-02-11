@@ -100,6 +100,17 @@ def execute_command(line):
         text = arg.strip('"\'')
         thought(text)
 
+    # Play mode control
+    elif cmd == "PLAY":
+        # Press F5 to enter Play mode, wait for game to load
+        action("--key f5")
+        time.sleep(3)  # Wait for game to load
+
+    elif cmd == "STOP":
+        # Press Shift+F5 to exit Play mode
+        subprocess.run(f"python {ACTION_SCRIPT} --key shift+f5", shell=True)
+        time.sleep(1)  # Wait for editor to return
+
     # Raw key (for anything else)
     elif cmd == "KEY":
         action(f"--key {arg}")
