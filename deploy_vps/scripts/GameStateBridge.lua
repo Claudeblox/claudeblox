@@ -1,22 +1,11 @@
 --[[
-    GameStateBridge - SERVER Script (NOT LocalScript!)
+    GameStateBridge - SERVER Script
     Place in ServerScriptService
 
-    Sends player position and game state to localhost:8585 every second.
-    level-runner and computer-player read this data to navigate.
+    Sends comprehensive game state to localhost:8585.
+    computer-player reads this to generate test scripts.
 
     REQUIRES: HttpService enabled in Game Settings!
-
-    DATA SENT:
-    - playerPosition (x, y, z)
-    - cameraDirection (x, y, z)
-    - health
-    - isAlive
-    - currentRoom
-    - nearbyObjects (with positions!)
-    - isDark
-    - hasFlashlight
-    - flashlightOn
 ]]
 
 local HttpService = game:GetService("HttpService")
@@ -25,44 +14,46 @@ local CollectionService = game:GetService("CollectionService")
 local Lighting = game:GetService("Lighting")
 
 local BRIDGE_URL = "http://localhost:8585"
-local UPDATE_INTERVAL = 0.5 -- faster updates for smooth gameplay
+local UPDATE_INTERVAL = 0.3 -- fast updates
+
+-- Track player progress
+local playerProgress = {
+    roomsVisited = {},
+    objectsCollected = {},
+    doorsOpened = {},
+    deathCause = nil,
+    isDead = false
+}
 
 -- Check if area is dark
 local function checkIfDark()
-    -- Check Lighting brightness
     if Lighting.Brightness < 0.3 then
         return true
     end
-
-    -- Check ambient light
     local ambient = Lighting.Ambient
     if ambient.R < 0.1 and ambient.G < 0.1 and ambient.B < 0.1 then
         return true
     end
-
     return false
 end
 
--- Check if player has flashlight and if it's on
+-- Check flashlight state
 local function getFlashlightState(character)
     local hasFlashlight = false
     local flashlightOn = false
 
-    -- Check backpack and character for flashlight tool
     local player = Players:GetPlayerFromCharacter(character)
     if player then
         -- Check equipped tools
         for _, tool in pairs(character:GetChildren()) do
             if tool:IsA("Tool") and (tool.Name:lower():find("flashlight") or tool.Name:lower():find("torch")) then
                 hasFlashlight = true
-                -- Check if light inside is enabled
                 local light = tool:FindFirstChildWhichIsA("Light", true)
                 if light and light.Enabled then
                     flashlightOn = true
                 end
             end
         end
-
         -- Check backpack
         for _, tool in pairs(player.Backpack:GetChildren()) do
             if tool:IsA("Tool") and (tool.Name:lower():find("flashlight") or tool.Name:lower():find("torch")) then
@@ -74,9 +65,8 @@ local function getFlashlightState(character)
     return hasFlashlight, flashlightOn
 end
 
--- Get camera direction from player
+-- Get facing direction
 local function getCameraDirection(player)
-    -- Server can't directly access camera, but we can get character facing direction
     local character = player.Character
     if character then
         local rootPart = character:FindFirstChild("HumanoidRootPart")
@@ -92,16 +82,16 @@ local function getCameraDirection(player)
     return {x = 0, y = 0, z = -1}
 end
 
+-- Get nearby objects with positions
 local function getNearbyObjects(position, radius)
     local nearby = {}
-    radius = radius or 50 -- increased radius for better awareness
+    radius = radius or 100 -- larger radius for better awareness
 
     for _, obj in pairs(workspace:GetDescendants()) do
         if obj:IsA("BasePart") and obj.Name ~= "Terrain" then
             local distance = (obj.Position - position).Magnitude
             if distance <= radius then
                 local tags = CollectionService:GetTags(obj)
-                -- Include objects with tags, or named like important things
                 local isImportant = #tags > 0
                     or obj.Name:find("Door")
                     or obj.Name:find("Exit")
@@ -117,6 +107,9 @@ local function getNearbyObjects(position, radius)
                     or obj.Name:find("Worker")
                     or obj.Name:find("Patient")
                     or obj.Name:find("Prisoner")
+                    or obj.Name:find("Spawn")
+                    or obj.Name:find("Room")
+                    or obj.Name:find("Zone")
 
                 if isImportant then
                     table.insert(nearby, {
@@ -171,32 +164,105 @@ local function getNearbyObjects(position, radius)
     table.sort(nearby, function(a, b) return a.distance < b.distance end)
 
     local result = {}
-    for i = 1, math.min(15, #nearby) do
+    for i = 1, math.min(20, #nearby) do
         table.insert(result, nearby[i])
     end
     return result
 end
 
+-- Determine current room
 local function getCurrentRoom(position)
-    for _, folder in pairs(workspace:GetChildren()) do
+    local closestRoom = "Unknown"
+    local closestDist = math.huge
+
+    for _, folder in pairs(workspace:GetDescendants()) do
         if folder:IsA("Folder") or folder:IsA("Model") then
-            if folder.Name:find("Room") or folder.Name:find("Zone") or folder.Name:find("Corridor") or folder.Name:find("Level") or folder.Name:find("Lab") or folder.Name:find("Storage") then
+            if folder.Name:find("Room") or folder.Name:find("Zone") or folder.Name:find("Corridor")
+               or folder.Name:find("Level") or folder.Name:find("Lab") or folder.Name:find("Storage")
+               or folder.Name:find("Spawn") or folder.Name:find("Exit") then
                 for _, part in pairs(folder:GetDescendants()) do
                     if part:IsA("BasePart") then
-                        local partPos = part.Position
-                        local partSize = part.Size
-                        if math.abs(position.X - partPos.X) < partSize.X/2 + 5 and
-                           math.abs(position.Z - partPos.Z) < partSize.Z/2 + 5 then
-                            return folder.Name
+                        local dist = (part.Position - position).Magnitude
+                        if dist < closestDist then
+                            closestDist = dist
+                            closestRoom = folder.Name
                         end
                     end
                 end
             end
         end
     end
-    return "Unknown"
+
+    -- Track visited rooms
+    if closestRoom ~= "Unknown" and not table.find(playerProgress.roomsVisited, closestRoom) then
+        table.insert(playerProgress.roomsVisited, closestRoom)
+    end
+
+    return closestRoom
 end
 
+-- Track when player collects something
+local function setupCollectionTracking(player)
+    player.CharacterAdded:Connect(function(character)
+        -- Reset on respawn
+        playerProgress.isDead = false
+        playerProgress.deathCause = nil
+
+        local humanoid = character:WaitForChild("Humanoid")
+
+        -- Track death
+        humanoid.Died:Connect(function()
+            playerProgress.isDead = true
+            -- Try to determine cause
+            local nearbyEnemies = {}
+            local rootPart = character:FindFirstChild("HumanoidRootPart")
+            if rootPart then
+                for _, obj in pairs(workspace:GetDescendants()) do
+                    if obj:IsA("Model") and (obj.Name:find("Enemy") or obj.Name:find("Experiment")
+                       or obj.Name:find("Worker") or obj.Name:find("Patient") or obj.Name:find("Prisoner")) then
+                        local primaryPart = obj.PrimaryPart or obj:FindFirstChild("HumanoidRootPart")
+                        if primaryPart then
+                            local dist = (primaryPart.Position - rootPart.Position).Magnitude
+                            if dist < 20 then
+                                playerProgress.deathCause = obj.Name
+                                break
+                            end
+                        end
+                    end
+                end
+            end
+            if not playerProgress.deathCause then
+                playerProgress.deathCause = "unknown"
+            end
+        end)
+    end)
+end
+
+-- Track object pickups (via Touched or CollectionService)
+CollectionService:GetInstanceAddedSignal("Collectible"):Connect(function(obj)
+    obj.Touched:Connect(function(hit)
+        local player = Players:GetPlayerFromCharacter(hit.Parent)
+        if player then
+            if not table.find(playerProgress.objectsCollected, obj.Name) then
+                table.insert(playerProgress.objectsCollected, obj.Name)
+            end
+        end
+    end)
+end)
+
+-- Track door opens
+CollectionService:GetInstanceAddedSignal("Door"):Connect(function(door)
+    -- Assume door has an "Opened" attribute or similar
+    door:GetAttributeChangedSignal("Opened"):Connect(function()
+        if door:GetAttribute("Opened") then
+            if not table.find(playerProgress.doorsOpened, door.Name) then
+                table.insert(playerProgress.doorsOpened, door.Name)
+            end
+        end
+    end)
+end)
+
+-- Send state
 local function sendState()
     for _, player in Players:GetPlayers() do
         local character = player.Character
@@ -213,6 +279,7 @@ local function sendState()
         local hasFlashlight, flashlightOn = getFlashlightState(character)
 
         local state = {
+            -- Basic
             playerName = player.Name,
             playerPosition = {
                 x = math.floor(position.X),
@@ -220,14 +287,29 @@ local function sendState()
                 z = math.floor(position.Z)
             },
             cameraDirection = getCameraDirection(player),
+
+            -- Health
             health = math.floor(health),
             maxHealth = math.floor(maxHealth),
             isAlive = health > 0,
+            isDead = playerProgress.isDead,
+            deathCause = playerProgress.deathCause,
+
+            -- Environment
             isDark = checkIfDark(),
             hasFlashlight = hasFlashlight,
             flashlightOn = flashlightOn,
             currentRoom = getCurrentRoom(position),
-            nearbyObjects = getNearbyObjects(position, 50),
+
+            -- Progress tracking
+            roomsVisited = playerProgress.roomsVisited,
+            objectsCollected = playerProgress.objectsCollected,
+            doorsOpened = playerProgress.doorsOpened,
+
+            -- Nearby objects with positions
+            nearbyObjects = getNearbyObjects(position, 100),
+
+            -- Meta
             timestamp = os.time()
         }
 
@@ -240,6 +322,12 @@ local function sendState()
         end
     end
 end
+
+-- Setup tracking for existing and new players
+for _, player in Players:GetPlayers() do
+    setupCollectionTracking(player)
+end
+Players.PlayerAdded:Connect(setupCollectionTracking)
 
 -- Main loop
 task.spawn(function()
