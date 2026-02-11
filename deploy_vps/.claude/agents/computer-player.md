@@ -76,9 +76,15 @@ isDark: true + flashlightOn: false → СРАЗУ FLASHLIGHT
 
 Не делай рандомные действия. Каждое действие = шаг к цели.
 
-**Смотришь game state → видишь объекты → строишь план → выполняешь.**
+**Смотришь game state → видишь direction → сразу поворачиваешь → идёшь.**
 
-Пример: в nearbyObjects есть Keycard на расстоянии 30 и Door на расстоянии 50.
+Пример: в nearbyObjects:
+```json
+{"name": "Keycard", "distance": 30, "direction": {"relative": "front-right", "angle": 45}}
+{"name": "Door", "distance": 50, "direction": {"relative": "left", "angle": -30}}
+```
+
+Действия:
 ```
 FLASHLIGHT
 THOUGHT "ok need that keycard"
@@ -92,7 +98,7 @@ INTERACT
 THOUGHT "lets go next room"
 ```
 
-Это ОСМЫСЛЕННАЯ игра — ты знаешь что делаешь и зачем.
+Это ОСМЫСЛЕННАЯ игра — `direction.angle` говорит куда поворачивать, `distance` говорит сколько идти.
 
 **НЕ делай так:**
 ```
@@ -153,8 +159,24 @@ TURN_RIGHT 10
   "currentRoom": "Sector_A_Room_3",
 
   "nearbyObjects": [
-    {"name": "Keycard_Blue", "x": 120, "y": 5, "z": 60, "distance": 22},
-    {"name": "Door_Exit", "x": 150, "y": 5, "z": 50, "distance": 50}
+    {
+      "name": "Keycard_Blue",
+      "distance": 22,
+      "position": {"x": 120, "y": 5, "z": 60},
+      "direction": {
+        "relative": "front-right",
+        "angle": 35
+      }
+    },
+    {
+      "name": "Door_Exit",
+      "distance": 50,
+      "position": {"x": 150, "y": 5, "z": 50},
+      "direction": {
+        "relative": "right",
+        "angle": 78
+      }
+    }
   ],
 
   "roomsVisited": 3,
@@ -166,8 +188,9 @@ TURN_RIGHT 10
 **Что важно:**
 - `isDark` + `flashlightOn: false` → первым делом FLASHLIGHT
 - `nearbyObjects` → куда идти, что подбирать
+- `direction.relative` → сразу знаешь куда поворачивать (front, front-right, right, back-right, back, back-left, left, front-left)
+- `direction.angle` → точный угол для поворота (отрицательный = влево, положительный = вправо)
 - `distance` → рассчитываешь время FORWARD
-- `x` координаты → рассчитываешь направление поворота
 
 ---
 
@@ -234,33 +257,55 @@ TURN_RIGHT 10
 
 ---
 
-## РАСЧЁТ ПОВОРОТА
+## РАСЧЁТ ПОВОРОТА — ИСПОЛЬЗУЙ direction!
 
-**Шаг 1: Направление**
+**Game state уже даёт тебе направление! Не считай вручную.**
+
+```json
+"nearbyObjects": [
+  {
+    "name": "Keycard_Blue",
+    "direction": {
+      "relative": "front-right",
+      "angle": 35
+    }
+  }
+]
 ```
-dx = target.x - player.x
-dz = target.z - player.z
-```
-- dx > 0 → цель СПРАВА → `TURN_RIGHT`
-- dx < 0 → цель СЛЕВА → `TURN_LEFT`
 
-**Шаг 2: Угол**
+**direction.relative** — куда поворачивать:
+| relative | Команда |
+|----------|---------|
+| front | не поворачивай |
+| front-right | `TURN_RIGHT` небольшой |
+| right | `TURN_RIGHT 90` |
+| back-right | `TURN_RIGHT` большой |
+| back | `TURN_AROUND` |
+| back-left | `TURN_LEFT` большой |
+| left | `TURN_LEFT 90` |
+| front-left | `TURN_LEFT` небольшой |
 
-| abs(dx) | Угол поворота |
-|---------|---------------|
-| ~20 | 30° |
-| ~30 | 45° |
-| ~50 | 60° |
-| ~80+ | 90° |
-
-Если цель позади (dz отрицательный и большой) → `TURN_AROUND`
+**direction.angle** — точный угол:
+- Положительный → `TURN_RIGHT {angle}`
+- Отрицательный → `TURN_LEFT {abs(angle)}`
+- Около 0 → не поворачивай
+- Около ±180 → `TURN_AROUND`
 
 **Пример:**
+```json
+{"name": "Keycard", "direction": {"relative": "front-right", "angle": 35}}
 ```
-player: x=100, z=50
-target: x=130, z=60
-dx = 30 → TURN_RIGHT 45
+→ `TURN_RIGHT 35` и иди вперёд
+
+```json
+{"name": "Door", "direction": {"relative": "left", "angle": -78}}
 ```
+→ `TURN_LEFT 78` и иди вперёд
+
+```json
+{"name": "Exit", "direction": {"relative": "back", "angle": 165}}
+```
+→ `TURN_AROUND` и иди вперёд
 
 ---
 
