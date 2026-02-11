@@ -691,12 +691,25 @@ CameraPoints enable beautiful promotional screenshots while keeping the game dar
 run_code([[
   local CollectionService = game:GetService("CollectionService")
 
-  local function createCameraPoint(parent, roomName, roomCenter, roomSize)
-    -- Position: upper corner for overview shot
+  local function createRoomCameraPoint(parent, roomName, roomCenter, roomSize)
+    -- ROOM: Camera in corner, looking at OPPOSITE corner (diagonal view)
+    -- This captures the entire room in one shot
+
+    local halfX = roomSize.X / 2 - 3  -- 3 studs from wall
+    local halfZ = roomSize.Z / 2 - 3
+
+    -- Camera position: one corner, eye level height
     local cameraPos = Vector3.new(
-      roomCenter.X - roomSize.X/2 + 2,
-      roomCenter.Y + roomSize.Y/2 - 2,
-      roomCenter.Z - roomSize.Z/2 + 2
+      roomCenter.X - halfX,
+      roomCenter.Y + 1,  -- slightly above center (eye level)
+      roomCenter.Z - halfZ
+    )
+
+    -- Look at: opposite corner, slightly lower
+    local lookAt = Vector3.new(
+      roomCenter.X + halfX,
+      roomCenter.Y - 2,  -- look slightly down
+      roomCenter.Z + halfZ
     )
 
     local cameraPoint = Instance.new("Part")
@@ -706,47 +719,108 @@ run_code([[
     cameraPoint.CanCollide = false
     cameraPoint.Size = Vector3.new(1, 1, 1)
     cameraPoint.Position = cameraPos
-    cameraPoint.CFrame = CFrame.lookAt(cameraPos, roomCenter)
+    cameraPoint.CFrame = CFrame.lookAt(cameraPos, lookAt)
 
-    -- Attributes for showcase-photographer
+    -- Attributes
     cameraPoint:SetAttribute("RoomName", roomName)
-    cameraPoint:SetAttribute("LookAt", roomCenter)
+    cameraPoint:SetAttribute("LookAt", lookAt)
 
-    -- FieldOfView based on room size
     local maxDim = math.max(roomSize.X, roomSize.Z)
     local fov = maxDim < 20 and 70 or (maxDim < 40 and 90 or 110)
     cameraPoint:SetAttribute("FieldOfView", fov)
     cameraPoint:SetAttribute("Type", "Room")
 
-    -- Tag for CollectionService
     CollectionService:AddTag(cameraPoint, "CameraPoint")
 
-    -- ShowcaseLight - OFF by default, turned on only for screenshots
+    -- ShowcaseLight - OFF by default
     local light = Instance.new("PointLight")
     light.Name = "ShowcaseLight"
     light.Brightness = 2.5
     light.Range = math.max(roomSize.X, roomSize.Z) * 1.2
     light.Color = Color3.fromRGB(255, 250, 240)
-    light.Enabled = false  -- CRITICAL: disabled by default!
+    light.Enabled = false
     light.Parent = cameraPoint
 
     cameraPoint.Parent = parent
-
     return cameraPoint
   end
 
-  -- Example: create CameraPoint for a room
+  -- Example for 20x20 room
   local room = workspace.Map:FindFirstChild("Room_01")
   if room then
     local floor = room:FindFirstChild("Floor")
     if floor then
       local center = floor.Position + Vector3.new(0, 5, 0)
-      local size = Vector3.new(20, 10, 20)  -- room dimensions
-      createCameraPoint(room, "SpawnRoom", center, size)
+      createRoomCameraPoint(room, "SpawnRoom", center, Vector3.new(20, 10, 20))
     end
   end
 
-  return "CameraPoint created"
+  return "Room CameraPoint created"
+]])
+```
+
+### Creating CameraPoint for a Corridor
+
+```lua
+run_code([[
+  local CollectionService = game:GetService("CollectionService")
+
+  local function createCorridorCameraPoint(parent, corridorName, corridorCenter, corridorSize)
+    -- CORRIDOR: Camera at middle of short wall, looking down the length
+    -- corridorSize: X = width, Y = height, Z = length (long dimension)
+
+    local halfLength = corridorSize.Z / 2 - 2  -- 2 studs from end wall
+
+    -- Camera at one end, centered horizontally
+    local cameraPos = Vector3.new(
+      corridorCenter.X,
+      corridorCenter.Y + 1,  -- eye level
+      corridorCenter.Z - halfLength
+    )
+
+    -- Look at opposite end
+    local lookAt = Vector3.new(
+      corridorCenter.X,
+      corridorCenter.Y - 1,  -- slightly down
+      corridorCenter.Z + halfLength
+    )
+
+    local cameraPoint = Instance.new("Part")
+    cameraPoint.Name = "CameraPoint_" .. corridorName
+    cameraPoint.Transparency = 1
+    cameraPoint.Anchored = true
+    cameraPoint.CanCollide = false
+    cameraPoint.Size = Vector3.new(1, 1, 1)
+    cameraPoint.Position = cameraPos
+    cameraPoint.CFrame = CFrame.lookAt(cameraPos, lookAt)
+
+    cameraPoint:SetAttribute("RoomName", corridorName)
+    cameraPoint:SetAttribute("LookAt", lookAt)
+    cameraPoint:SetAttribute("FieldOfView", 90)  -- wider for corridors
+    cameraPoint:SetAttribute("Type", "Corridor")
+
+    CollectionService:AddTag(cameraPoint, "CameraPoint")
+
+    local light = Instance.new("PointLight")
+    light.Name = "ShowcaseLight"
+    light.Brightness = 2.5
+    light.Range = corridorSize.Z * 0.8  -- range along corridor
+    light.Color = Color3.fromRGB(255, 250, 240)
+    light.Enabled = false
+    light.Parent = cameraPoint
+
+    cameraPoint.Parent = parent
+    return cameraPoint
+  end
+
+  -- Example: 6 wide x 40 long corridor
+  local corridor = workspace.Map:FindFirstChild("Corridor_01")
+  if corridor then
+    -- Center of corridor, size (width=6, height=8, length=40)
+    createCorridorCameraPoint(corridor, "MainCorridor", Vector3.new(0, 4, 20), Vector3.new(6, 8, 40))
+  end
+
+  return "Corridor CameraPoint created"
 ]])
 ```
 
@@ -804,12 +878,39 @@ run_code([[
 ]])
 ```
 
-### CameraPoint Rules
+### CameraPoint Rules — POSITIONING IS CRITICAL!
 
-**Position:**
-- Room: upper corner, looking at center → sees whole room
-- Corridor: one end, looking along length → sees full corridor
-- Enemy: in front at eye level → dramatic portrait
+**ROOM POSITION:**
+- Place camera in a CORNER of the room (not center!)
+- Height: eye level (~5-6 studs from floor)
+- Look at: OPPOSITE corner (diagonal view shows whole room)
+- Distance from walls: 3-4 studs (not touching walls)
+
+```
+Example 20x20 room, center at (0, 5, 0):
+- Camera at corner: (-7, 6, -7)
+- Look at opposite corner: (7, 3, 7)
+- This diagonal view captures the ENTIRE room
+```
+
+**CORRIDOR POSITION:**
+- Place camera at the MIDDLE of one SHORT wall
+- Height: eye level (~5-6 studs)
+- Look at: OPPOSITE short wall (straight down the corridor)
+- This shows the full LENGTH of the corridor
+
+```
+Example corridor 40 long x 6 wide, center at (0, 5, 0):
+- Corridor runs along Z axis (long dimension)
+- Camera at: (0, 6, -18) — middle of one end
+- Look at: (0, 4, 18) — middle of other end
+- Shows full corridor length
+```
+
+**ENEMY POSITION:**
+- 8 studs in front of enemy
+- Eye level height
+- Look at enemy's head/face
 
 **FieldOfView:**
 - Small room (< 20 studs): FOV 70
