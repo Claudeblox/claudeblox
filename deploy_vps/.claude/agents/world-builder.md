@@ -338,7 +338,7 @@ run_code([[
   end
 
   local Map = workspace:FindFirstChild("Map")
-  local lamp = createLamp(Map, "CeilingLamp_01", Vector3.new(0, 9.5, 0), 0.2, 12)
+  local lamp = createLamp(Map, "CeilingLamp_01", Vector3.new(0, 9.5, 0), 0.4, 15)
 
   return "Lamp created: " .. lamp:GetFullName()
 ]])
@@ -500,7 +500,7 @@ ClockTime = 0
 ## ONLY LIGHT SOURCE:
 - **PointLight** inside lamp parts
 - Lamp Material = **SmoothPlastic** (NOT Neon!)
-- PointLight: Brightness = 0.1-0.3, Range = 10-15
+- PointLight: Brightness = 0.3-0.5, Range = 12-20 (slightly brighter so player can see)
 - Shadows = true for drama
 
 ## BEFORE STARTING WORK:
@@ -626,8 +626,8 @@ run_code([[
   lamp.Parent = workspace.Map.Zone1_Lobby
 
   local light = Instance.new("PointLight")
-  light.Brightness = 0.2
-  light.Range = 12
+  light.Brightness = 0.4
+  light.Range = 15
   light.Color = Color3.fromRGB(255, 240, 220)
   light.Shadows = true
   light.Parent = lamp
@@ -638,7 +638,156 @@ run_code([[
 
 **Rule of three:** in each zone — 1 main light source (leads attention) + 1-2 secondary (fill shadows). More isn't needed, less is flat.
 
-## 7. DETAILS AND EFFECTS
+## 7. CAMERA POINTS FOR SCREENSHOTS (CRITICAL!)
+
+**After creating each room, add a CameraPoint for showcase-photographer.**
+
+CameraPoints enable beautiful promotional screenshots while keeping the game dark:
+- Game stays dark (horror atmosphere)
+- showcase-photographer temporarily enables ShowcaseLight for screenshots
+- Screenshots look amazing, game plays scary
+
+### Creating CameraPoint for a Room
+
+```lua
+run_code([[
+  local CollectionService = game:GetService("CollectionService")
+
+  local function createCameraPoint(parent, roomName, roomCenter, roomSize)
+    -- Position: upper corner for overview shot
+    local cameraPos = Vector3.new(
+      roomCenter.X - roomSize.X/2 + 2,
+      roomCenter.Y + roomSize.Y/2 - 2,
+      roomCenter.Z - roomSize.Z/2 + 2
+    )
+
+    local cameraPoint = Instance.new("Part")
+    cameraPoint.Name = "CameraPoint_" .. roomName
+    cameraPoint.Transparency = 1
+    cameraPoint.Anchored = true
+    cameraPoint.CanCollide = false
+    cameraPoint.Size = Vector3.new(1, 1, 1)
+    cameraPoint.Position = cameraPos
+    cameraPoint.CFrame = CFrame.lookAt(cameraPos, roomCenter)
+
+    -- Attributes for showcase-photographer
+    cameraPoint:SetAttribute("RoomName", roomName)
+    cameraPoint:SetAttribute("LookAt", roomCenter)
+
+    -- FieldOfView based on room size
+    local maxDim = math.max(roomSize.X, roomSize.Z)
+    local fov = maxDim < 20 and 70 or (maxDim < 40 and 90 or 110)
+    cameraPoint:SetAttribute("FieldOfView", fov)
+    cameraPoint:SetAttribute("Type", "Room")
+
+    -- Tag for CollectionService
+    CollectionService:AddTag(cameraPoint, "CameraPoint")
+
+    -- ShowcaseLight - OFF by default, turned on only for screenshots
+    local light = Instance.new("PointLight")
+    light.Name = "ShowcaseLight"
+    light.Brightness = 2.5
+    light.Range = math.max(roomSize.X, roomSize.Z) * 1.2
+    light.Color = Color3.fromRGB(255, 250, 240)
+    light.Enabled = false  -- CRITICAL: disabled by default!
+    light.Parent = cameraPoint
+
+    cameraPoint.Parent = parent
+
+    return cameraPoint
+  end
+
+  -- Example: create CameraPoint for a room
+  local room = workspace.Map:FindFirstChild("Room_01")
+  if room then
+    local floor = room:FindFirstChild("Floor")
+    if floor then
+      local center = floor.Position + Vector3.new(0, 5, 0)
+      local size = Vector3.new(20, 10, 20)  -- room dimensions
+      createCameraPoint(room, "SpawnRoom", center, size)
+    end
+  end
+
+  return "CameraPoint created"
+]])
+```
+
+### Creating CameraPoint for an Enemy
+
+```lua
+run_code([[
+  local CollectionService = game:GetService("CollectionService")
+
+  local function createEnemyCameraPoint(enemy)
+    -- Position: in front of enemy, at eye level, looking at face
+    local pos = enemy.PrimaryPart and enemy.PrimaryPart.Position or enemy.Position
+    local cameraPos = pos + Vector3.new(0, 0, 8)  -- 8 studs in front
+    local lookAt = pos + Vector3.new(0, 2, 0)  -- look at head level
+
+    local cameraPoint = Instance.new("Part")
+    cameraPoint.Name = "CameraPoint_" .. enemy.Name
+    cameraPoint.Transparency = 1
+    cameraPoint.Anchored = true
+    cameraPoint.CanCollide = false
+    cameraPoint.Size = Vector3.new(1, 1, 1)
+    cameraPoint.Position = cameraPos
+    cameraPoint.CFrame = CFrame.lookAt(cameraPos, lookAt)
+
+    -- Attributes
+    cameraPoint:SetAttribute("RoomName", enemy.Name)
+    cameraPoint:SetAttribute("LookAt", lookAt)
+    cameraPoint:SetAttribute("FieldOfView", 60)  -- dramatic close-up
+    cameraPoint:SetAttribute("Type", "Enemy")
+
+    CollectionService:AddTag(cameraPoint, "CameraPoint")
+
+    -- Dramatic lighting from below
+    local light = Instance.new("SpotLight")
+    light.Name = "ShowcaseLight"
+    light.Brightness = 3
+    light.Range = 20
+    light.Angle = 60
+    light.Face = Enum.NormalId.Top  -- light from below = creepy
+    light.Enabled = false
+    light.Parent = cameraPoint
+
+    cameraPoint.Parent = enemy
+
+    return cameraPoint
+  end
+
+  -- Example
+  local enemy = workspace:FindFirstChild("FailedExperiment")
+  if enemy then
+    createEnemyCameraPoint(enemy)
+  end
+
+  return "Enemy CameraPoint created"
+]])
+```
+
+### CameraPoint Rules
+
+**Position:**
+- Room: upper corner, looking at center → sees whole room
+- Corridor: one end, looking along length → sees full corridor
+- Enemy: in front at eye level → dramatic portrait
+
+**FieldOfView:**
+- Small room (< 20 studs): FOV 70
+- Medium room (20-40 studs): FOV 90
+- Large room/corridor (> 40 studs): FOV 110
+- Enemy: FOV 60 (dramatic close-up)
+
+**ShowcaseLight:**
+- `Enabled = false` ALWAYS (showcase-photographer enables temporarily)
+- Brightness 2-3 for rooms
+- Brightness 3-4 for enemies (dramatic)
+- Range = room size × 1.2
+
+**After EVERY room you create, add a CameraPoint!**
+
+## 8. DETAILS AND EFFECTS
 
 **Add details last.** Until space and light work — details won't save anything.
 

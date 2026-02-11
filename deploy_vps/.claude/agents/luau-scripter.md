@@ -385,6 +385,77 @@ local function getNearbyObjects(position: Vector3, radius: number)
   return result
 end
 
+local function getCurrentRoom(position: Vector3)
+  -- Find which room/zone the player is in
+  for _, folder in workspace:GetDescendants() do
+    if folder:IsA("Folder") or folder:IsA("Model") then
+      local name = folder.Name:lower()
+      if name:find("room") or name:find("zone") or name:find("corridor") or name:find("hall") then
+        local floor = folder:FindFirstChild("Floor")
+        if floor and floor:IsA("BasePart") then
+          local floorPos = floor.Position
+          local floorSize = floor.Size
+          -- Check if player is within room bounds (with some margin)
+          local margin = 5
+          if position.X >= floorPos.X - floorSize.X/2 - margin and
+             position.X <= floorPos.X + floorSize.X/2 + margin and
+             position.Z >= floorPos.Z - floorSize.Z/2 - margin and
+             position.Z <= floorPos.Z + floorSize.Z/2 + margin then
+            return folder.Name
+          end
+        end
+      end
+    end
+  end
+  return "Unknown"
+end
+
+local function getFlashlightStatus(player: Player)
+  local backpack = player:FindFirstChild("Backpack")
+  local character = player.Character
+
+  -- Check Backpack
+  local flashlight = backpack and backpack:FindFirstChild("Flashlight")
+  -- Also check if equipped (in character)
+  if not flashlight and character then
+    flashlight = character:FindFirstChild("Flashlight")
+  end
+
+  if not flashlight then
+    return false, false
+  end
+
+  local handle = flashlight:FindFirstChild("Handle")
+  local light = handle and handle:FindFirstChild("Light")
+  local isOn = light and light.Enabled or false
+
+  return true, isOn
+end
+
+local function countCollectibles()
+  local total = 0
+  local collected = 0
+  for _, obj in CollectionService:GetTagged("Collectible") do
+    total = total + 1
+    if obj:GetAttribute("Collected") then
+      collected = collected + 1
+    end
+  end
+  return collected, total
+end
+
+local function countDoors()
+  local total = 0
+  local opened = 0
+  for _, obj in CollectionService:GetTagged("InteractiveDoor") do
+    total = total + 1
+    if obj:GetAttribute("Opened") or obj:GetAttribute("IsOpen") then
+      opened = opened + 1
+    end
+  end
+  return opened, total
+end
+
 local function sendState()
   for _, player in Players:GetPlayers() do
     local character = player.Character
@@ -394,12 +465,25 @@ local function sendState()
 
     local humanoid = character:FindFirstChildOfClass("Humanoid")
     local health = humanoid and humanoid.Health or 0
+    local maxHealth = humanoid and humanoid.MaxHealth or 100
     local pos = rootPart.Position
+
+    local hasFlashlight, flashlightOn = getFlashlightStatus(player)
+    local collectiblesCollected, collectiblesTotal = countCollectibles()
+    local doorsOpened, doorsTotal = countDoors()
+    local currentRoom = getCurrentRoom(pos)
 
     local state = {
       playerPosition = {x = math.floor(pos.X), y = math.floor(pos.Y), z = math.floor(pos.Z)},
+      playerRotation = math.floor(rootPart.Orientation.Y),
       health = health,
+      maxHealth = maxHealth,
       isAlive = health > 0,
+      currentRoom = currentRoom,
+      hasFlashlight = hasFlashlight,
+      flashlightOn = flashlightOn,
+      collectibles = {collected = collectiblesCollected, total = collectiblesTotal},
+      doors = {opened = doorsOpened, total = doorsTotal},
       nearbyObjects = getNearbyObjects(pos, 30)
     }
     pcall(function()
@@ -420,6 +504,109 @@ end)
 ```
 
 **ALSO enable HttpService in game settings!**
+
+---
+
+## FLASHLIGHT FOR HORROR GAMES — CRITICAL!
+
+**Every horror game MUST have a working flashlight.** Players need to see in dark environments.
+
+### Creating Flashlight Tool
+
+```lua
+run_code([[
+  -- Create Flashlight Tool in StarterPack
+  local tool = Instance.new("Tool")
+  tool.Name = "Flashlight"
+  tool.RequiresHandle = true
+  tool.CanBeDropped = false
+  tool.ToolTip = "Press F to toggle"
+
+  -- Handle (the physical flashlight)
+  local handle = Instance.new("Part")
+  handle.Name = "Handle"
+  handle.Size = Vector3.new(0.5, 0.5, 2)
+  handle.Color = Color3.fromRGB(40, 40, 40)
+  handle.Material = Enum.Material.Metal
+  handle.Parent = tool
+
+  -- SpotLight (NOT PointLight — SpotLight gives directional beam)
+  local light = Instance.new("SpotLight")
+  light.Name = "Light"
+  light.Brightness = 2
+  light.Range = 60
+  light.Angle = 45
+  light.Face = Enum.NormalId.Front
+  light.Enabled = false  -- OFF by default, player toggles with F
+  light.Parent = handle
+
+  -- LocalScript for toggle
+  local script = Instance.new("LocalScript")
+  script.Name = "FlashlightController"
+  script.Source = [=[
+--!strict
+local tool = script.Parent
+local light = tool:WaitForChild("Handle"):WaitForChild("Light")
+local UserInputService = game:GetService("UserInputService")
+
+local function toggleFlashlight()
+  light.Enabled = not light.Enabled
+end
+
+-- Toggle on F key
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+  if gameProcessed then return end
+  if input.KeyCode == Enum.KeyCode.F then
+    toggleFlashlight()
+  end
+end)
+
+-- Also toggle when tool is activated (click)
+tool.Activated:Connect(toggleFlashlight)
+  ]=]
+  script.Parent = tool
+
+  tool.Parent = game:GetService("StarterPack")
+
+  return "Flashlight created in StarterPack"
+]])
+```
+
+### How the Flashlight Works
+
+1. **Tool in StarterPack** — automatically goes to player's Backpack on spawn
+2. **Handle** — the physical flashlight part that player holds
+3. **SpotLight** — directional light beam (better than PointLight for flashlights)
+4. **LocalScript** — listens for F key to toggle light on/off
+
+### SpotLight vs PointLight
+
+- **SpotLight** — directional cone of light, like real flashlight
+- **PointLight** — light in all directions, like a lamp
+
+For flashlights, ALWAYS use SpotLight:
+```lua
+local light = Instance.new("SpotLight")
+light.Brightness = 2      -- how bright
+light.Range = 60          -- how far light reaches
+light.Angle = 45          -- cone width in degrees
+light.Face = Enum.NormalId.Front  -- which direction
+```
+
+### Flashlight in game_state.json
+
+GameStateBridge should report flashlight status:
+```lua
+-- In GameStateBridge, add to state:
+local backpack = player:FindFirstChild("Backpack")
+local flashlight = backpack and backpack:FindFirstChild("Flashlight")
+local flashlightLight = flashlight and flashlight:FindFirstChild("Handle") and flashlight.Handle:FindFirstChild("Light")
+
+state.hasFlashlight = flashlight ~= nil
+state.flashlightOn = flashlightLight and flashlightLight.Enabled or false
+```
+
+**Every horror game you create MUST include this flashlight!**
 
 ---
 

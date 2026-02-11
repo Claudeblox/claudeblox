@@ -14,7 +14,7 @@ local CollectionService = game:GetService("CollectionService")
 local Lighting = game:GetService("Lighting")
 
 local BRIDGE_URL = "http://localhost:8585"
-local UPDATE_INTERVAL = 0.3 -- fast updates
+local UPDATE_INTERVAL = 1 -- update every second
 
 -- Track player progress
 local playerProgress = {
