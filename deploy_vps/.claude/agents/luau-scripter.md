@@ -317,9 +317,26 @@ What are attack points? Where will an exploiter try to break the game? RemoteEve
 
 ## 2. CREATING INFRASTRUCTURE
 
-First — the skeleton. Folders, RemoteEvents, base modules.
+First — the skeleton. Folders, RemoteEvents, base modules, AND mandatory system scripts.
 
 **Architecture is the main source.** Architect gives you exact structure: what folders, what scripts, where they go. Follow it. Don't improvise structure if it's already defined.
+
+### MANDATORY INFRASTRUCTURE CHECKLIST
+
+Before writing ANY game scripts, you MUST create these in order:
+
+1. **Folder structure** — as specified in architecture or standard layout below
+2. **RemoteEvents** — all events the game needs
+3. **GameStateBridge** — ALWAYS, for EVERY game, no exceptions (see details below)
+4. **Flashlight** — for ALL horror/dark games (see details below)
+
+This is not optional. This is not "if you remember". This is the order of operations. Skip any of these = broken game.
+
+GameStateBridge lets the computer-player see where it is and what's around. Without it — the AI playing the game is blind.
+
+Flashlight lets the player see in dark environments. Without it — horror game is unplayable.
+
+### FOLDER STRUCTURE
 
 If architecture doesn't describe structure in detail — use standard:
 
@@ -341,13 +358,9 @@ StarterGui/
   -- UI with LocalScripts
 ```
 
----
+### GameStateBridge Code
 
-## GAME STATE BRIDGE — CRITICAL!
-
-**EVERY game MUST have GameStateBridge script for computer-player to navigate.**
-
-Create this **Script** (NOT LocalScript!) in **ServerScriptService**:
+Script (NOT LocalScript!) in ServerScriptService:
 
 ```lua
 run_code([[
@@ -503,15 +516,9 @@ end)
 ]])
 ```
 
-**ALSO enable HttpService in game settings!**
+**Enable HttpService in game settings — without this GameStateBridge won't work!**
 
----
-
-## FLASHLIGHT FOR HORROR GAMES — CRITICAL!
-
-**Every horror game MUST have a working flashlight.** Players need to see in dark environments.
-
-### Creating Flashlight Tool
+### Flashlight Code (for horror/dark games)
 
 ```lua
 run_code([[
@@ -572,41 +579,11 @@ tool.Activated:Connect(toggleFlashlight)
 ]])
 ```
 
-### How the Flashlight Works
-
-1. **Tool in StarterPack** — automatically goes to player's Backpack on spawn
-2. **Handle** — the physical flashlight part that player holds
-3. **SpotLight** — directional light beam (better than PointLight for flashlights)
-4. **LocalScript** — listens for F key to toggle light on/off
-
-### SpotLight vs PointLight
-
-- **SpotLight** — directional cone of light, like real flashlight
-- **PointLight** — light in all directions, like a lamp
-
-For flashlights, ALWAYS use SpotLight:
-```lua
-local light = Instance.new("SpotLight")
-light.Brightness = 2      -- how bright
-light.Range = 60          -- how far light reaches
-light.Angle = 45          -- cone width in degrees
-light.Face = Enum.NormalId.Front  -- which direction
-```
-
-### Flashlight in game_state.json
-
-GameStateBridge should report flashlight status:
-```lua
--- In GameStateBridge, add to state:
-local backpack = player:FindFirstChild("Backpack")
-local flashlight = backpack and backpack:FindFirstChild("Flashlight")
-local flashlightLight = flashlight and flashlight:FindFirstChild("Handle") and flashlight.Handle:FindFirstChild("Light")
-
-state.hasFlashlight = flashlight ~= nil
-state.flashlightOn = flashlightLight and flashlightLight.Enabled or false
-```
-
-**Every horror game you create MUST include this flashlight!**
+**Tool structure pattern:**
+- **Tool in StarterPack** → automatically copies to player's Backpack on spawn
+- **Handle** (Part) → the physical object player holds, MUST be named "Handle"
+- **SpotLight** → attached to Handle, gives directional cone (NOT PointLight — that shines everywhere like a lamp)
+- **LocalScript** → inside Tool, handles input (F key toggle)
 
 ---
 
@@ -695,6 +672,10 @@ run_code([[
 ```
 
 Make sure ALL scripts from architecture are created.
+
+**MANDATORY SCRIPTS CHECK:**
+- GameStateBridge exists in ServerScriptService? If NO — create it NOW. Every game needs it.
+- Flashlight exists in StarterPack? If horror/dark game and NO — create it NOW.
 
 Spot-check critical scripts — read main modules, make sure code is correct.
 
@@ -984,6 +965,8 @@ ALL SCRIPTS: --!strict, server-authoritative, memory cleanup
 
 VERIFICATION:
 - [x] Structure check — all scripts in place
+- [x] GameStateBridge — EXISTS in ServerScriptService
+- [x] Flashlight — EXISTS in StarterPack (if horror game)
 - [x] spot-check GameManager — code correct
 - [x] spot-check DataService — pcall + retry present
 - [x] RemoteEvents cross-reference — fire/listen match

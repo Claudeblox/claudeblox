@@ -9,6 +9,72 @@ context: fork
 
 Runs the full build pipeline for the Roblox game through MCP.
 
+## ⛔ MANDATORY CHECKLIST — BLOCKERS
+
+**After EACH subagent, verify these. If ANY fails → FIX BEFORE NEXT STEP.**
+
+### After luau-scripter:
+```lua
+run_code([[
+  local SSS = game:GetService("ServerScriptService")
+  local SP = game:GetService("StarterPack")
+
+  local checks = {}
+
+  -- GameStateBridge MUST exist
+  local bridge = SSS:FindFirstChild("GameStateBridge")
+  checks.GameStateBridge = bridge and "✅ EXISTS" or "❌ MISSING — BLOCKER!"
+
+  -- Flashlight MUST exist for horror games
+  local flashlight = SP:FindFirstChild("Flashlight")
+  checks.Flashlight = flashlight and "✅ EXISTS" or "❌ MISSING — BLOCKER!"
+
+  local result = "=== SCRIPTER CHECKLIST ===\n"
+  for k, v in checks do
+    result = result .. k .. ": " .. v .. "\n"
+  end
+  return result
+]])
+```
+**If GameStateBridge or Flashlight MISSING → Call luau-scripter again to create them!**
+
+### After world-builder:
+```lua
+run_code([[
+  local Lighting = game:GetService("Lighting")
+  local CS = game:GetService("CollectionService")
+
+  local checks = {}
+
+  -- Lighting MUST be configured
+  checks.Brightness = Lighting.Brightness == 0 and "✅ 0" or "❌ " .. Lighting.Brightness .. " — BLOCKER!"
+  checks.Atmosphere = not Lighting:FindFirstChild("Atmosphere") and "✅ NONE" or "❌ EXISTS — BLOCKER!"
+  checks.Sky = not Lighting:FindFirstChild("Sky") and "✅ NONE" or "❌ EXISTS — BLOCKER!"
+
+  -- SpawnLocation MUST exist
+  local spawn = workspace:FindFirstChildOfClass("SpawnLocation", true)
+  checks.SpawnLocation = spawn and "✅ EXISTS" or "❌ MISSING — BLOCKER!"
+
+  -- CameraPoints for screenshots
+  local cameraPoints = CS:GetTagged("CameraPoint")
+  checks.CameraPoints = #cameraPoints >= 1 and "✅ " .. #cameraPoints .. " found" or "⚠️ NONE — add for screenshots"
+
+  -- PointLights for visibility
+  local lights = 0
+  for _, obj in workspace:GetDescendants() do
+    if obj:IsA("PointLight") or obj:IsA("SpotLight") then lights = lights + 1 end
+  end
+  checks.Lights = lights >= 3 and "✅ " .. lights .. " lights" or "❌ " .. lights .. " — need more!"
+
+  local result = "=== WORLD-BUILDER CHECKLIST ===\n"
+  for k, v in checks do
+    result = result .. k .. ": " .. v .. "\n"
+  end
+  return result
+]])
+```
+**If ANY ❌ BLOCKER → Call world-builder again to fix!**
+
 ## Usage
 ```
 /build-game
@@ -93,23 +159,56 @@ Call the **world-builder** subagent with the architecture:
 - Lighting.Brightness = 0, Ambient = [0,0,0]
 - FogColor = [0,0,0], FogEnd = 80
 
-### Step 5: Screenshots for Twitter
-After world-builder finishes, take promotional screenshots:
+### Step 5: Screenshots for Twitter (MANDATORY)
+After world-builder finishes, take promotional screenshots.
 
-**Option A: Use showcase-photographer agent**
-Call **showcase-photographer** subagent to take screenshots of CameraPoints created by world-builder:
-- Finds all objects tagged "CameraPoint"
-- Enables ShowcaseLight temporarily for each shot
-- Takes screenshot, disables light
-- Saves to `C:/claudeblox/screenshots/showcase/`
-
-**Option B: Simple screenshots**
-If no CameraPoints exist, take basic screenshots:
-```bash
-python C:/claudeblox/scripts/screenshot_game.py --cycle 1 --name overview
+**MUST call showcase-photographer:**
+```
+Task(
+  subagent_type: "showcase-photographer",
+  model: "sonnet",
+  description: "take showcase screenshots",
+  prompt: "Take screenshots of all CameraPoints. Save to C:/claudeblox/screenshots/showcase/"
+)
 ```
 
+If no CameraPoints exist → go back to world-builder and add them!
+
 Screenshots are used by claudezilla for milestone tweets.
+
+### Step 5.5: Start Game Bridge (MANDATORY for play-test)
+**Before any play-testing, start game_bridge.py:**
+```bash
+Start-Process python -ArgumentList "C:/claudeblox/scripts/game_bridge.py" -WindowStyle Hidden
+```
+
+Verify it's running:
+```bash
+Test-NetConnection -ComputerName localhost -Port 8585
+```
+
+### Step 5.6: Visual Play-Test (MANDATORY)
+**DO NOT SKIP visual play-test!**
+
+```
+Task(
+  subagent_type: "computer-player",
+  model: "sonnet",
+  description: "play-test the game",
+  prompt: "
+    === LEVEL CONTEXT ===
+    [Pass level info from architecture here]
+
+    Play the game for at least 20 actions.
+    Report any bugs, issues, or improvements needed.
+  "
+)
+```
+
+**After play-test, stop the bridge:**
+```bash
+Get-NetTCPConnection -LocalPort 8585 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }
+```
 
 ### Step 6: Verify
 After both agents finish, verify via run_code:
