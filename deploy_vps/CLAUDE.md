@@ -132,8 +132,7 @@ Task(
 - `world-builder` — 3D world creation
 - `luau-reviewer` — code review
 - `roblox-playtester` — structural testing
-- `computer-player` — visual gameplay, testing (VPS only)
-- `level-runner` — completes levels efficiently, for stream demo (VPS only)
+- `computer-player` — visual gameplay, completes levels, testing (VPS only)
 - `claudezilla` — Twitter posts
 - `roblox-publisher` — publish game to Roblox
 
