@@ -82,10 +82,67 @@ local function getCameraDirection(player)
     return {x = 0, y = 0, z = -1}
 end
 
--- Get nearby objects with positions
-local function getNearbyObjects(position, radius)
+-- Calculate direction relative to player's look vector
+local function calculateDirection(playerPosition, objectPosition, lookVector)
+    -- Get horizontal direction to object (ignore Y)
+    local toObject = Vector3.new(
+        objectPosition.X - playerPosition.X,
+        0,
+        objectPosition.Z - playerPosition.Z
+    )
+
+    if toObject.Magnitude < 0.01 then
+        return { relative = "here", angle = 0 }
+    end
+
+    toObject = toObject.Unit
+    local lookFlat = Vector3.new(lookVector.X, 0, lookVector.Z)
+    if lookFlat.Magnitude < 0.01 then
+        lookFlat = Vector3.new(0, 0, -1)
+    else
+        lookFlat = lookFlat.Unit
+    end
+
+    -- Dot product for forward/back, cross product Y for left/right
+    local dotForward = lookFlat.X * toObject.X + lookFlat.Z * toObject.Z
+    local crossY = lookFlat.X * toObject.Z - lookFlat.Z * toObject.X
+
+    -- Calculate angle in degrees (-180 to 180)
+    local angle = math.deg(math.atan2(crossY, dotForward))
+
+    -- Determine relative direction
+    local relative
+    if angle > 157.5 or angle < -157.5 then
+        relative = "back"
+    elseif angle > 112.5 then
+        relative = "back-right"
+    elseif angle > 67.5 then
+        relative = "right"
+    elseif angle > 22.5 then
+        relative = "front-right"
+    elseif angle > -22.5 then
+        relative = "front"
+    elseif angle > -67.5 then
+        relative = "front-left"
+    elseif angle > -112.5 then
+        relative = "left"
+    elseif angle > -157.5 then
+        relative = "back-left"
+    else
+        relative = "back"
+    end
+
+    return {
+        relative = relative,
+        angle = math.floor(angle)
+    }
+end
+
+-- Get nearby objects with positions and directions
+local function getNearbyObjects(position, radius, lookVector)
     local nearby = {}
     radius = radius or 100 -- larger radius for better awareness
+    lookVector = lookVector or Vector3.new(0, 0, -1)
 
     for _, obj in pairs(workspace:GetDescendants()) do
         if obj:IsA("BasePart") and obj.Name ~= "Terrain" then
@@ -121,6 +178,7 @@ local function getNearbyObjects(position, radius)
                             y = math.floor(obj.Position.Y),
                             z = math.floor(obj.Position.Z)
                         },
+                        direction = calculateDirection(position, obj.Position, lookVector),
                         tags = tags
                     })
                 end
@@ -153,6 +211,7 @@ local function getNearbyObjects(position, radius)
                                 y = math.floor(primaryPart.Position.Y),
                                 z = math.floor(primaryPart.Position.Z)
                             },
+                            direction = calculateDirection(position, primaryPart.Position, lookVector),
                             tags = {"Enemy"}
                         })
                     end
@@ -306,8 +365,8 @@ local function sendState()
             objectsCollected = playerProgress.objectsCollected,
             doorsOpened = playerProgress.doorsOpened,
 
-            -- Nearby objects with positions
-            nearbyObjects = getNearbyObjects(position, 100),
+            -- Nearby objects with positions and directions
+            nearbyObjects = getNearbyObjects(position, 100, rootPart.CFrame.LookVector),
 
             -- Meta
             timestamp = os.time()
