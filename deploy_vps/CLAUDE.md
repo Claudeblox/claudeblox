@@ -365,6 +365,31 @@ computer-player requires:
 
 Don't block entire pipeline due to missing VPS. Structural tests give 80% confidence.
 
+**IMPORTANT: Pass level context to computer-player!**
+
+When calling computer-player, pass information about the current level:
+
+```
+Task(
+  subagent_type: "computer-player",
+  model: "sonnet",
+  description: "play level 5",
+  prompt: "
+    === LEVEL CONTEXT ===
+    Level: 5 (Sector A - Research Labs)
+    Goal: Find Blue Keycard, exit through North door
+    Enemy: Failed Experiment (slow, just avoid)
+    Tips: Keycards usually in side rooms, check lockers
+    Exit location: North corridor (x=200, z=100)
+
+    Play the level. Report any bugs or issues.
+  "
+)
+```
+
+Game Master knows the architecture — passes strategy.
+GameStateBridge provides runtime data — progress and positions.
+
 ### claudezilla
 **role:** Twitter voice of the project.
 **input:** what was done

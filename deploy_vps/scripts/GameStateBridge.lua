@@ -25,6 +25,48 @@ local playerProgress = {
     isDead = false
 }
 
+-- Get level info from workspace (LevelConfig object or attributes)
+local function getLevelInfo()
+    local levelInfo = {
+        name = "Unknown",
+        sector = "Unknown",
+        goal = "Find exit",
+        requiredItems = {},
+        exitDoor = nil
+    }
+
+    -- Try to find LevelConfig object or attributes on workspace
+    local levelConfig = workspace:FindFirstChild("LevelConfig")
+    if levelConfig then
+        levelInfo.name = levelConfig:GetAttribute("LevelName") or "Unknown"
+        levelInfo.sector = levelConfig:GetAttribute("Sector") or "Unknown"
+        levelInfo.goal = levelConfig:GetAttribute("Goal") or "Find exit"
+    end
+
+    -- Find ExitDoor and its requirements
+    for _, obj in workspace:GetDescendants() do
+        if obj:IsA("BasePart") and obj.Name:find("Exit") and obj.Name:find("Door") then
+            local requiredKey = obj:GetAttribute("RequiredKey")
+            if requiredKey then
+                table.insert(levelInfo.requiredItems, requiredKey)
+            end
+            levelInfo.exitDoor = {
+                name = obj.Name,
+                position = {
+                    x = math.floor(obj.Position.X),
+                    y = math.floor(obj.Position.Y),
+                    z = math.floor(obj.Position.Z)
+                },
+                isLocked = obj:GetAttribute("isLocked") or false,
+                requiredKey = requiredKey
+            }
+            break
+        end
+    end
+
+    return levelInfo
+end
+
 -- Check if area is dark
 local function checkIfDark()
     if Lighting.Brightness < 0.3 then
@@ -338,6 +380,9 @@ local function sendState()
         local hasFlashlight, flashlightOn = getFlashlightState(character)
 
         local state = {
+            -- Level info
+            levelInfo = getLevelInfo(),
+
             -- Basic
             playerName = player.Name,
             playerPosition = {

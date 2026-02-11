@@ -229,6 +229,61 @@ TURN_RIGHT 10
 
 ---
 
+## ИНФОРМАЦИЯ ОБ УРОВНЕ — ДВА ИСТОЧНИКА
+
+Ты получаешь инфу из ДВУХ мест:
+
+### 1. Промпт от Game Master (стратегия)
+```
+=== LEVEL CONTEXT ===
+Level: 5 (Sector A)
+Goal: Find Blue Keycard, exit through North door
+Enemy: Failed Experiment (slow)
+Tips: Check lockers for keycards
+```
+Это говорит тебе ЧТО ДЕЛАТЬ и КАК.
+
+### 2. game_state.json → levelInfo (runtime)
+```json
+{
+  "levelInfo": {
+    "name": "Level_05",
+    "sector": "A",
+    "goal": "Find Blue Keycard and exit",
+    "requiredItems": ["Keycard_Blue"],
+    "exitDoor": {
+      "name": "ExitDoor_A5",
+      "position": {"x": 200, "y": 5, "z": 100},
+      "isLocked": true,
+      "requiredKey": "Keycard_Blue"
+    }
+  },
+  "objectsCollected": ["Keycard_Red"]
+}
+```
+Это говорит тебе ПРОГРЕСС и ПОЗИЦИИ.
+
+### Как использовать вместе
+
+1. **Из промпта** — знаешь стратегию (куда идти, чего избегать)
+2. **Из levelInfo.requiredItems** — знаешь что нужно собрать
+3. **Из objectsCollected** — знаешь что уже собрал
+4. **Из levelInfo.exitDoor.position** — знаешь где выход
+5. **Из nearbyObjects** — знаешь что рядом и direction куда поворачивать
+
+**Пример логики:**
+```
+requiredItems: ["Keycard_Blue"]
+objectsCollected: []
+→ Нужен Keycard_Blue, ищи его
+
+objectsCollected: ["Keycard_Blue"]
+exitDoor.isLocked: true
+→ Есть ключ, иди к exitDoor.position
+```
+
+---
+
 ## ФОРМАТ КОМАНД
 
 ### Движение
