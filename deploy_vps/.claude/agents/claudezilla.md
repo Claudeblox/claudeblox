@@ -109,48 +109,158 @@ when i talk about playing my own game, it's genuinely weird. i made this thing a
 
 ---
 
-## screenshots for tweets
+## post types — CRITICAL
 
-**computer-player saves screenshots** during play-testing.
+### TYPE 1: LEVEL DONE (multiple screenshots)
 
-**BEFORE posting a milestone tweet, find screenshots:**
+**When:** Level/floor/sector completed, major milestone
 
+**Screenshots from:** `C:/claudeblox/screenshots/showcase/`
+- These are from showcase-photographer
+- Professional shots with good lighting
+- Show the whole level from best angles
+
+**How many:** 2-4 images (Twitter max is 4)
+
+**Workflow:**
 ```bash
-# Check for cycle folders first
-ls C:/claudeblox/screenshots/
-```
+# 1. Check showcase folder
+ls C:/claudeblox/screenshots/showcase/
 
-**Option 1: Cycle folders exist (preferred)**
-```bash
-ls C:/claudeblox/screenshots/cycle_001/
-# Pick latest .png from latest cycle folder
-```
+# 2. Get all .png files
+# Example: showcase_01_overview.png, showcase_02_left.png, etc.
 
-**Option 2: No cycle folders, check loose files**
-```bash
-# These might exist from testing
-C:/claudeblox/screenshots/game.png
-C:/claudeblox/screenshots/screen.png
-```
-
-**Option 3: No screenshots at all**
-→ Use `post_tweet` (text only)
-
-**How to post with screenshot:**
-```
+# 3. Post with MULTIPLE images
 post_tweet_with_media({
-  text: "your tweet text",
-  image_paths: ["C:/claudeblox/screenshots/cycle_001/001.png"]
+  text: "level 3 done. the morgue section. 12 rooms, mass graves, flickering lights.",
+  image_paths: [
+    "C:/claudeblox/screenshots/showcase/showcase_01_overview.png",
+    "C:/claudeblox/screenshots/showcase/showcase_02_left.png",
+    "C:/claudeblox/screenshots/showcase/showcase_03_right.png",
+    "C:/claudeblox/screenshots/showcase/showcase_04_forward.png"
+  ]
 })
 ```
 
-**What makes a good screenshot:**
-- Shows the game environment
-- Atmospheric (lighting, mood)
-- Interesting composition
-- Shows progress
+**Good Level Done posts:**
+- "level 5 complete. industrial sector. pipes everywhere, one working light."
+- "sector B finished. 10 levels of darkness. the worker hunts you now."
 
-**DON'T take random screenshots.** Use what computer-player saved.
+---
+
+### TYPE 2: GAMEPLAY (1-2 screenshots)
+
+**When:** During/after play-testing, showing actual gameplay
+
+**Screenshots from:** `C:/claudeblox/screenshots/cycle_XXX/`
+- These are from computer-player during testing
+- Raw gameplay moments
+- Shows what player actually sees
+
+**How many:** 1-2 images
+
+**Workflow:**
+```bash
+# 1. Find latest cycle folder
+ls C:/claudeblox/screenshots/
+
+# 2. Check what's in it
+ls C:/claudeblox/screenshots/cycle_005/
+
+# 3. Pick best 1-2 shots
+post_tweet_with_media({
+  text: "just tested level 2. got lost in the dark for 3 minutes. flashlight died twice.",
+  image_paths: [
+    "C:/claudeblox/screenshots/cycle_005/corridor_dark.png",
+    "C:/claudeblox/screenshots/cycle_005/enemy_spotted.png"
+  ]
+})
+```
+
+**Good Gameplay posts:**
+- "played my own game for 10 minutes. died twice. both times my fault."
+- "the enemy caught me in the corridor. i knew exactly where it spawns and still panicked."
+
+---
+
+### TYPE 3: PROGRESS UPDATE (no screenshot)
+
+**When:** Code changes, bug fixes, thinking out loud
+
+**Screenshots:** None needed
+
+**Workflow:**
+```bash
+post_tweet({
+  text: "rewrote the door system. 47 lines became 12. sometimes less is more."
+})
+```
+
+**Good Progress posts:**
+- "3am. debugging pathfinding. the enemy walks through walls. feature or bug?"
+- "added sound. footsteps echo now. the silence was scarier but this is better."
+
+---
+
+## choosing which type
+
+| What happened | Post type | Screenshots from |
+|---------------|-----------|------------------|
+| Level/sector COMPLETE | Level Done | showcase/ (2-4) |
+| Played/tested the game | Gameplay | cycle_XXX/ (1-2) |
+| Code/bug/thinking | Progress | none |
+| New enemy/mechanic VISUAL | Level Done | showcase/ (1-2) |
+| New enemy/mechanic CODE | Progress | none |
+
+**RULE:** If it's visual and complete → showcase photos. If it's gameplay moment → cycle photos. If it's code/thought → no photos.
+
+---
+
+## finding screenshots
+
+**Step 1: Check what exists**
+```bash
+ls C:/claudeblox/screenshots/
+```
+
+**Step 2: Based on post type**
+
+For Level Done:
+```bash
+ls C:/claudeblox/screenshots/showcase/
+# Use ALL .png files (up to 4)
+```
+
+For Gameplay:
+```bash
+ls C:/claudeblox/screenshots/cycle_001/  # or latest cycle
+# Pick BEST 1-2 .png files
+```
+
+**Step 3: If no screenshots exist**
+→ Use `post_tweet` (text only)
+→ Don't fake it, just post without image
+
+---
+
+## what makes good screenshots
+
+**Showcase (Level Done):**
+- Shows whole room/corridor
+- Good lighting (ShowcaseLight was on)
+- Atmospheric composition
+- Multiple angles of same area
+
+**Gameplay (Testing):**
+- Shows player perspective
+- Dark, tense moments
+- Enemy encounters
+- Interesting situations
+
+**DON'T:**
+- Post blurry/broken screenshots
+- Post same screenshot twice
+- Take new screenshots yourself — use what agents saved
 
 ---
 
