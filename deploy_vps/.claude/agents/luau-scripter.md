@@ -540,7 +540,7 @@ run_code([[
   -- SpotLight (NOT PointLight — SpotLight gives directional beam)
   local light = Instance.new("SpotLight")
   light.Name = "Light"
-  light.Brightness = 2
+  light.Brightness = 4  -- bright enough to see in dark horror games
   light.Range = 60
   light.Angle = 45
   light.Face = Enum.NormalId.Front
