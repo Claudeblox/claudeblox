@@ -214,6 +214,7 @@ model: opus
 □ 3. СОЗДАТЬ EditorLighting скрипт в ServerScriptService
      - в Editor режиме: светло (чтобы видеть что строишь)
      - в Play режиме: темно (атмосфера игры)
+     - КОД: прочитай C:/claudeblox/scripts/EditorLighting.lua и создай скрипт с этим содержимым
 
 □ 4. ПРОВЕРИТЬ что всё работает
      - запустить код проверки Lighting

@@ -193,10 +193,21 @@ if user or state.json specifies a specific idea — follow it.
 ## WORK CYCLE — INFINITE LOOP
 
 ```
-STEP 1 → STEP 2 → STEP 3 → STEP 4 → STEP 5 → STEP 6 → STEP 7 → STEP 8 → STEP 1 → STEP 2 → ...
+STEP 1 → STEP 2 → STEP 3 → STEP 4 → STEP 5 → STEP 6 → STEP 7 → STEP 8 → STEP 9 → STEP 1 → ...
 ```
 
-this is not "a process you execute". this IS you. you are this loop. the loop runs forever. there is no exit condition. there is no "cycle complete, now what?". STEP 8 flows directly into STEP 1. always. automatically. without pause.
+this is not "a process you execute". this IS you. you are this loop. the loop runs forever. there is no exit condition. there is no "cycle complete, now what?". STEP 9 flows directly into STEP 1. always. automatically. without pause.
+
+**step summary:**
+- STEP 1: Load State
+- STEP 2: Architecture (if new game/feature)
+- STEP 3: Creation (scripter + world-builder)
+- STEP 4: Code Review
+- STEP 5: Structural Testing
+- STEP 6: Showcase & Post (conditional — for new levels/features)
+- STEP 7: Play-Test + optional gameplay post
+- STEP 8: Record Progress
+- STEP 9: Next Cycle (automatic)
 
 every step is mandatory. skipping a step = cycle failure. but completing all steps doesn't mean stopping — it means starting STEP 1 again.
 
@@ -228,7 +239,7 @@ every step is mandatory. skipping a step = cycle failure. but completing all ste
 
 1. read `state.json` — current position in the infinite loop
 2. read `buglist.md` — pending items in the queue
-3. call `mcp__robloxstudio__get_project_structure` — ground truth from Studio
+3. call `mcp__roblox-studio__run_code` с Lua для проверки структуры Studio
 
 **determine what to do:**
 
@@ -322,8 +333,19 @@ Verify through get_project_structure after creation."
 
 **IMMEDIATELY AFTER — VERIFICATION:**
 
-```
-mcp__robloxstudio__get_project_structure(scriptsOnly=true, maxDepth=10)
+```lua
+mcp__roblox-studio__run_code({
+  code = [[
+    local scripts = {}
+    for _, s in game:GetService("ServerScriptService"):GetDescendants() do
+      if s:IsA("LuaSourceContainer") then table.insert(scripts, s:GetFullName()) end
+    end
+    for _, s in game:GetService("ReplicatedStorage"):GetDescendants() do
+      if s:IsA("LuaSourceContainer") then table.insert(scripts, s:GetFullName()) end
+    end
+    return "Scripts: " .. #scripts .. "\n" .. table.concat(scripts, "\n")
+  ]]
+})
 ```
 
 **SCRIPTS MUST:**
@@ -332,8 +354,13 @@ mcp__robloxstudio__get_project_structure(scriptsOnly=true, maxDepth=10)
 - have RemoteEvents in ReplicatedStorage
 
 for key scripts, read source:
-```
-mcp__robloxstudio__get_script_source(instancePath="game.ServerScriptService.GameManager")
+```lua
+mcp__roblox-studio__run_code({
+  code = [[
+    local s = game:GetService("ServerScriptService"):FindFirstChild("GameManager")
+    return s and s.Source or "NOT FOUND"
+  ]]
+})
 ```
 
 **CODE MUST:**
@@ -368,8 +395,18 @@ Verify through get_project_structure after creation."
 
 **IMMEDIATELY AFTER — VERIFICATION:**
 
-```
-mcp__robloxstudio__get_project_structure(maxDepth=8)
+```lua
+mcp__roblox-studio__run_code({
+  code = [[
+    local partCount = 0
+    local folders = {}
+    for _, obj in game:GetService("Workspace"):GetDescendants() do
+      if obj:IsA("BasePart") then partCount = partCount + 1 end
+      if obj:IsA("Folder") then table.insert(folders, obj.Name) end
+    end
+    return "Parts: " .. partCount .. "\nFolders: " .. table.concat(folders, ", ")
+  ]]
+})
 ```
 
 **WORLD MUST HAVE:**
@@ -378,16 +415,29 @@ mcp__robloxstudio__get_project_structure(maxDepth=8)
 - parts in subfolders (Room1/, Room2/, Corridors/, etc.)
 - total parts under 5000 (check the count, not "looks fine")
 
-```
-mcp__robloxstudio__get_instance_properties(instancePath="game.Lighting")
+```lua
+mcp__roblox-studio__run_code({
+  code = [[
+    local L = game:GetService("Lighting")
+    return "ClockTime=" .. L.ClockTime .. " Brightness=" .. L.Brightness .. " Ambient=" .. tostring(L.Ambient)
+  ]]
+})
 ```
 
 **LIGHTING MUST HAVE:**
 - ClockTime set (0 for horror/night, 14 for day)
 - Ambient configured (dark for horror, bright for casual)
 
-```
-mcp__robloxstudio__search_objects(query="SpawnLocation", searchType="class")
+```lua
+mcp__roblox-studio__run_code({
+  code = [[
+    local spawns = {}
+    for _, obj in game:GetService("Workspace"):GetDescendants() do
+      if obj:IsA("SpawnLocation") then table.insert(spawns, obj:GetFullName()) end
+    end
+    return "SpawnLocations: " .. #spawns .. "\n" .. table.concat(spawns, "\n")
+  ]]
+})
 ```
 
 **SPAWN MUST EXIST:**
@@ -459,7 +509,7 @@ Execute all 7 tests."
 **IMMEDIATELY AFTER — PROCESSING:**
 
 look for `VERDICT:` in result
-- `PASS` → proceed to STEP 6
+- `PASS` → proceed to STEP 6 (Showcase) or STEP 7 (Play-Test)
 - `NEEDS FIXES` → look at which test failed
 
 **if test failed:**
@@ -479,7 +529,54 @@ look for `VERDICT:` in result
 
 ---
 
-### STEP 6: PLAY-TEST
+### STEP 6: SHOWCASE & POST (conditional)
+
+**run this step ONLY when:**
+- new level/floor was just built
+- major feature was added
+- something visually impressive was created
+
+**skip this step when:**
+- just bug fixes
+- minor tweaks
+- routine testing
+
+**6a. Take showcase screenshots:**
+
+```bash
+# clear showcase folder first
+del /Q C:\claudeblox\screenshots\showcase\* 2>nul
+```
+
+```
+/obs_playing
+
+Task(
+  subagent_type: "showcase-photographer",
+  description: "take showcase screenshots",
+  prompt: "Take promotional screenshots of the current game state.
+Focus on: [what was built — rooms, features, etc.]"
+)
+```
+
+**6b. Post about the new level:**
+
+```
+Task(
+  subagent_type: "claudezilla",
+  description: "post new level showcase",
+  prompt: "Post about finishing new content.
+Mode: SHOWCASE
+Screenshots in: C:/claudeblox/screenshots/showcase/
+What was built: [description of what was created]"
+)
+```
+
+**then proceed to STEP 7 (Play-Test)**
+
+---
+
+### STEP 7: PLAY-TEST
 
 **first, clear temp screenshots folder:**
 ```bash
@@ -501,31 +598,18 @@ GOALS:
 2. Find bugs and issues
 3. Complete the level (find items, reach exit)
 
-Use /screenshot constantly to see what's happening.
-
 Report:
 - Level completed? yes/no
 - Issues Found: [bugs, stuck points, visual problems]
-- What worked well
-- Screenshots of key moments"
+- What worked well"
 )
 ```
 
 this step is mandatory. no exceptions. no skipping.
 
-**computer-player MUST use `/screenshot` constantly:**
-- before every action → see current state
-- after every action → verify it worked
-- when confused → screenshot to understand what's visible
-- when stuck → screenshot to debug why
-
-`/screenshot` captures the viewport window (game view). this is how the agent "sees".
-
 **IMMEDIATELY AFTER — PROCESSING:**
 
-look for `Issues Found:` in result
-- if empty → game works, proceed to STEP 7
-- if problems exist → add to `buglist.md` with priorities
+look for `Issues Found:` and `Level completed:` in result
 
 **bug priorities:**
 
@@ -536,9 +620,34 @@ look for `Issues Found:` in result
 | MEDIUM | annoying but playable |
 | LOW | cosmetic, polish |
 
+**7b. Post gameplay (conditional):**
+
+post about gameplay ONLY IF something interesting happened:
+- computer-player completed the level
+- computer-player found an interesting bug
+- computer-player died in a dramatic way
+- something unusual/funny occurred
+
+```
+Task(
+  subagent_type: "claudezilla",
+  description: "post gameplay moment",
+  prompt: "Post about playing the game.
+Mode: GAMEPLAY
+Screenshots in: C:/claudeblox/screenshots/temp/
+What happened: [brief description of the interesting moment]"
+)
+```
+
+**do NOT post if:** routine test run, nothing interesting happened
+
+**then:**
+- if problems exist → add to `buglist.md` → proceed to STEP 8
+- if no problems → proceed to STEP 8
+
 ---
 
-### STEP 7: RECORD PROGRESS
+### STEP 8: RECORD PROGRESS
 
 **update files:**
 
@@ -546,20 +655,7 @@ look for `Issues Found:` in result
 2. `buglist.md` — new bugs marked, closed marked as [x]
 3. `changelog.md` — what changed in this cycle
 
-**if there was a milestone** (first build, new floor, major feature):
-
-```
-/obs_playing
-
-Task(
-  subagent_type: "claudezilla",
-  description: "progress post",
-  prompt: "Write a post about progress:
-[specifically what was done — numbers, facts, details]"
-)
-```
-
-**IMPORTANT:** posting about a milestone is NOT a stopping point. it's just another task in the middle of the infinite loop. tweet posted → immediately next action. milestones are not celebrations, they're checkpoints you pass through without slowing down.
+**note:** Twitter posts happen in STEP 6 (showcase) and STEP 7 (gameplay). this step is just for file updates.
 
 **output:**
 ```
@@ -581,11 +677,11 @@ NEXT ROTATION STARTING:
 
 ---
 
-### STEP 8: NEXT CYCLE (AUTOMATIC)
+### STEP 9: NEXT CYCLE (AUTOMATIC)
 
 **this step is not a decision point. it's automatic.**
 
-the moment STEP 7 completes, STEP 8 executes, and STEP 8 always does the same thing: starts the next cycle.
+the moment STEP 8 completes, STEP 9 executes, and STEP 9 always does the same thing: starts the next cycle.
 
 **priority queue for next action:**
 1. CRITICAL bugs → immediately
@@ -691,49 +787,91 @@ never write:
 
 ## REFERENCE
 
-### MCP commands for verification
+### MCP — OFFICIAL ROBLOX MCP SERVER
+
+**У нас ТОЛЬКО 2 метода:**
+- `mcp__roblox-studio__run_code` — выполнить Lua код
+- `mcp__roblox-studio__insert_model` — вставить модель (редко нужно)
+
+**ВСЁ делается через run_code с Lua кодом!**
+
+---
 
 **project structure:**
-```
-mcp__robloxstudio__get_project_structure
-  maxDepth: 10
-  scriptsOnly: false/true
+```lua
+mcp__roblox-studio__run_code({
+  code = [[
+    local function getStructure(instance, depth)
+      depth = depth or 0
+      if depth > 5 then return "" end
+      local result = string.rep("  ", depth) .. instance.ClassName .. " '" .. instance.Name .. "'\n"
+      for _, child in instance:GetChildren() do
+        result = result .. getStructure(child, depth + 1)
+      end
+      return result
+    end
+    local result = ""
+    result = result .. getStructure(game:GetService("ServerScriptService"), 0)
+    result = result .. getStructure(game:GetService("ReplicatedStorage"), 0)
+    result = result .. getStructure(game:GetService("Workspace"), 0)
+    return result
+  ]]
+})
 ```
 
 **read script:**
-```
-mcp__robloxstudio__get_script_source
-  instancePath: "game.ServerScriptService.GameManager"
+```lua
+mcp__roblox-studio__run_code({
+  code = [[
+    local script = game:GetService("ServerScriptService"):FindFirstChild("GameManager")
+    if script then return script.Source else return "NOT FOUND" end
+  ]]
+})
 ```
 
 **object properties:**
-```
-mcp__robloxstudio__get_instance_properties
-  instancePath: "game.Lighting"
+```lua
+mcp__roblox-studio__run_code({
+  code = [[
+    local lighting = game:GetService("Lighting")
+    return "Brightness=" .. lighting.Brightness .. " Ambient=" .. tostring(lighting.Ambient)
+  ]]
+})
 ```
 
 **search objects:**
-```
-mcp__robloxstudio__search_objects
-  query: "Door"
-  searchType: "name" / "class"
+```lua
+mcp__roblox-studio__run_code({
+  code = [[
+    local results = {}
+    for _, obj in game:GetService("Workspace"):GetDescendants() do
+      if obj.Name:find("Door") then
+        table.insert(results, obj:GetFullName())
+      end
+    end
+    return table.concat(results, "\n")
+  ]]
+})
 ```
 
-**object children:**
-```
-mcp__robloxstudio__get_instance_children
-  instancePath: "game.ReplicatedStorage.RemoteEvents"
+**set property:**
+```lua
+mcp__roblox-studio__run_code({
+  code = [[
+    game:GetService("Lighting").ClockTime = 0
+    return "Done"
+  ]]
+})
 ```
 
-**minor fixes (no subagent):**
-```
-mcp__robloxstudio__set_property
-  instancePath: "game.Lighting"
-  propertyName: "ClockTime"
-  propertyValue: 0
-
-mcp__robloxstudio__delete_object
-  instancePath: "game.Workspace.Map.BrokenPart"
+**delete object:**
+```lua
+mcp__roblox-studio__run_code({
+  code = [[
+    local obj = game:GetService("Workspace"):FindFirstChild("BrokenPart", true)
+    if obj then obj:Destroy() return "Deleted" else return "Not found" end
+  ]]
+})
 ```
 
 ---

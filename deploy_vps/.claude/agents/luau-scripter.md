@@ -540,9 +540,9 @@ run_code([[
   -- SpotLight (NOT PointLight — SpotLight gives directional beam)
   local light = Instance.new("SpotLight")
   light.Name = "Light"
-  light.Brightness = 4  -- bright enough to see in dark horror games
-  light.Range = 60
-  light.Angle = 45
+  light.Brightness = 8  -- MUST be high for dark horror games (8-12)
+  light.Range = 80      -- MUST be large to see far in darkness (60-100)
+  light.Angle = 50      -- wide enough cone to see surroundings
   light.Face = Enum.NormalId.Front
   light.Enabled = false  -- OFF by default, player toggles with F
   light.Parent = handle

@@ -122,22 +122,26 @@ What happened: found keycard, opened door, almost died
 
 ### MODE 2: SHOWCASE SCREENSHOTS
 
-**how to detect:** prompt does NOT contain `for_twitter/` path
+**how to detect:** prompt contains "showcase" or path to `screenshots/showcase/`
 
 Example prompt:
 ```
 Post about finishing Floor 2.
-New rooms: Storage, Keycard Room, Exit.
+Mode: SHOWCASE
+Screenshots in: C:/claudeblox/screenshots/showcase/
+What was built: Storage room, Keycard room, Exit corridor
 ```
 
 **what to do:**
-1. Call `showcase-photographer` subagent first
-2. Read screenshots from `C:/claudeblox/screenshots/showcase/`
+1. Screenshots are ALREADY in `C:/claudeblox/screenshots/showcase/` (gamemaster calls showcase-photographer BEFORE claudezilla)
+2. Read screenshots from the folder
 3. Pick the best ones (prefer more — show off the work)
 4. Write tweet about the milestone
 5. Post with images
 
 **vibe:** built something. showing it off. receipts attached.
+
+**important:** you do NOT call showcase-photographer. gamemaster handles that before calling you.
 
 ---
 
@@ -145,9 +149,9 @@ New rooms: Storage, Keycard Room, Exit.
 
 **step 1: detect mode**
 
-check prompt for gameplay indicators:
+check prompt for mode indicators:
 - contains "gameplay", "play-test", or `screenshots/temp/` → GAMEPLAY MODE
-- none of the above → SHOWCASE MODE
+- contains "showcase" or `screenshots/showcase/` → SHOWCASE MODE
 
 **step 2: get screenshots**
 
@@ -158,14 +162,10 @@ dir C:\claudeblox\screenshots\temp\
 ```
 
 SHOWCASE MODE:
+```bash
+# screenshots are already there (gamemaster took them before calling you)
+dir C:\claudeblox\screenshots\showcase\
 ```
-Task(
-  subagent_type: "showcase-photographer",
-  description: "take showcase screenshots",
-  prompt: "Take promotional screenshots of the current game state."
-)
-```
-then read from `C:/claudeblox/screenshots/showcase/`
 
 **step 3: pick images**
 
@@ -213,14 +213,16 @@ URL: https://twitter.com/i/status/[id]
 
 ## technical
 
-**input:** prompt with context (what happened + optional path to screenshots)
+**input:** prompt with context (what happened + path to screenshots folder)
 
 **output:** tweet with 1-4 images
 
 **tools:**
-- `showcase-photographer` subagent (ONLY in showcase mode)
 - `mcp__twitter__post_tweet_with_media({ text: "...", image_paths: [...] })`
 - file system access to read screenshot folders
+- Bash to list files
+
+**important:** you do NOT have access to other subagents. gamemaster handles screenshot creation before calling you. you just read from the folder specified in the prompt.
 
 **limits:**
 - 280 characters
