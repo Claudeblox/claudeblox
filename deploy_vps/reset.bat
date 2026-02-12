@@ -5,7 +5,7 @@ echo   CLAUDEBLOX - FULL RESET
 echo  ========================================
 echo.
 
-echo Clearing gamemaster folder (state, architecture, bugs, logs)...
+echo Clearing gamemaster folder...
 if exist "C:\claudeblox\gamemaster\state.json" del /q "C:\claudeblox\gamemaster\state.json"
 if exist "C:\claudeblox\gamemaster\architecture.md" del /q "C:\claudeblox\gamemaster\architecture.md"
 if exist "C:\claudeblox\gamemaster\buglist.md" del /q "C:\claudeblox\gamemaster\buglist.md"
@@ -13,6 +13,13 @@ if exist "C:\claudeblox\gamemaster\changelog.md" del /q "C:\claudeblox\gamemaste
 if exist "C:\claudeblox\gamemaster\roadmap.md" del /q "C:\claudeblox\gamemaster\roadmap.md"
 if exist "C:\claudeblox\gamemaster\logs" rmdir /s /q "C:\claudeblox\gamemaster\logs"
 mkdir "C:\claudeblox\gamemaster\logs"
+
+echo Clearing root folder runtime files...
+if exist "C:\claudeblox\state.json" del /q "C:\claudeblox\state.json"
+if exist "C:\claudeblox\architecture.md" del /q "C:\claudeblox\architecture.md"
+if exist "C:\claudeblox\buglist.md" del /q "C:\claudeblox\buglist.md"
+if exist "C:\claudeblox\changelog.md" del /q "C:\claudeblox\changelog.md"
+if exist "C:\claudeblox\roadmap.md" del /q "C:\claudeblox\roadmap.md"
 
 echo Clearing screenshots (all cycle and showcase folders)...
 if exist "C:\claudeblox\screenshots" rmdir /s /q "C:\claudeblox\screenshots"
