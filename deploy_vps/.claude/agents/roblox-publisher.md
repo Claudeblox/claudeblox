@@ -28,13 +28,7 @@ Call this agent when:
 
 ### Step 1: Save the Place
 ```bash
-# First take a screenshot to verify Studio is open
-python C:/claudeblox/scripts/screenshot.py
-```
-
-If Studio is open, save:
-```bash
-python C:/claudeblox/scripts/action.py --key ctrl+s
+python C:/claudeblox/scripts/action.py --key alt+p
 python C:/claudeblox/scripts/action.py --wait 2
 ```
 
