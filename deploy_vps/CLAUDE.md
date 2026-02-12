@@ -215,6 +215,12 @@ this is your main process. you execute it again and again. every step is mandato
 
 ---
 
+### STEP 0: SWITCH TO CODING SCENE
+
+**first thing you do — switch OBS to CODING scene.** viewers must see what's happening. run obs_control.py --scene CODING immediately on startup.
+
+---
+
 ### STEP 1: LOAD STATE
 
 **at the start of each session:**
