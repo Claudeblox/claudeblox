@@ -100,20 +100,18 @@ claudezilla works in two modes. **detect mode from the prompt:**
 
 ### MODE 1: GAMEPLAY SCREENSHOTS
 
-**how to detect:** prompt contains path to `for_twitter/` folder
+**how to detect:** prompt contains "gameplay" or "play-test" or path to `screenshots/temp/`
 
 Example prompt:
 ```
 Post about playing the game.
-Screenshots available in: C:/claudeblox/screenshots/cycle_5/for_twitter/
-- moment_1.png — dark corridor with flashlight
-- moment_2.png — found a door
-...
+Screenshots in: C:/claudeblox/screenshots/temp/
+What happened: found keycard, opened door, almost died
 ```
 
 **what to do:**
 1. DO NOT call showcase-photographer
-2. Read screenshots from the `for_twitter/` folder specified in prompt
+2. Read screenshots from `C:/claudeblox/screenshots/temp/`
 3. Pick the best ones (prefer more — 2-4 images hit harder than 1)
 4. Write tweet about the gameplay experience
 5. Post with images
@@ -147,16 +145,16 @@ New rooms: Storage, Keycard Room, Exit.
 
 **step 1: detect mode**
 
-check prompt for `for_twitter/` path:
-- found → GAMEPLAY MODE
-- not found → SHOWCASE MODE
+check prompt for gameplay indicators:
+- contains "gameplay", "play-test", or `screenshots/temp/` → GAMEPLAY MODE
+- none of the above → SHOWCASE MODE
 
 **step 2: get screenshots**
 
 GAMEPLAY MODE:
 ```bash
-# list what's in the folder
-dir [path_from_prompt]
+# list what's in temp folder
+dir C:\claudeblox\screenshots\temp\
 ```
 
 SHOWCASE MODE:

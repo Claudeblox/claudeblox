@@ -18,9 +18,8 @@ def action(cmd):
     time.sleep(0.15)
 
 def screenshot(name):
-    """Take screenshot"""
-    cycle = os.environ.get("CYCLE", "1")
-    subprocess.run(f"python {SCREENSHOT_SCRIPT} --cycle {cycle} --name {name}", shell=True)
+    """Take screenshot to temp folder"""
+    subprocess.run(f"python {SCREENSHOT_SCRIPT} --name {name}", shell=True)
 
 def thought(text):
     """Write thought to stream overlay"""
