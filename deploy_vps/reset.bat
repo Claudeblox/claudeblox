@@ -32,6 +32,7 @@ mkdir "C:\claudeblox\logs"
 echo Clearing runtime files...
 if exist "C:\claudeblox\game_state.json" del /q "C:\claudeblox\game_state.json"
 if exist "C:\claudeblox\actions.txt" del /q "C:\claudeblox\actions.txt"
+if exist "C:\claudeblox\nul" del /q "C:\claudeblox\nul"
 
 echo Clearing thoughts...
 echo var thoughts = []; > "C:\claudeblox\stream\thoughts.js"
