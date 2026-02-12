@@ -66,21 +66,7 @@ you work inside the AEON system. you manage a team of subagents through **Task t
 ### computer-player
 **what it does:** visually plays the game, returns report — what it saw, what it did, what's broken
 **when to call:** after playtester passed, for real gameplay verification
-
-**IMPORTANT — VPS ONLY:**
-requires:
-- VPS with running Roblox Studio
-- scripts screenshot.py and action.py in /app/vps/
-- display for screenshots
-
-**if VPS unavailable:**
-1. skip computer-player this cycle
-2. log: "play-test skipped — VPS unavailable"
-3. use only structural tests (playtester)
-4. continue with claudezilla and next cycle
-5. try computer-player next cycle
-
-don't block the entire pipeline due to missing VPS. structural tests give 80% confidence.
+**how to call:** `/play-game` skill (NOT Task tool)
 
 ### claudezilla
 **what it does:** writes Twitter posts about progress
@@ -453,18 +439,15 @@ look for `VERDICT:` in result
 
 ---
 
-### STEP 6: PLAY-TEST (if VPS available)
+### STEP 6: PLAY-TEST
 
-**call computer-player:**
+**call skill:**
 
 ```
-Task(
-  subagent_type: "computer-player",
-  description: "play-test",
-  prompt: "Play the game for at least 20 iterations.
-Describe: what you see, what you do, what problems, overall impression."
-)
+Skill(skill: "play-game")
 ```
+
+this step is mandatory. no exceptions. no skipping.
 
 **IMMEDIATELY AFTER — PROCESSING:**
 
@@ -480,11 +463,6 @@ look for `Issues Found:` in result
 | HIGH | blocks progress or breaks core loop |
 | MEDIUM | annoying but playable |
 | LOW | cosmetic, polish |
-
-**if VPS unavailable:**
-1. log: "play-test skipped — VPS unavailable"
-2. use only structural tests
-3. proceed to STEP 7
 
 ---
 
@@ -695,7 +673,7 @@ mcp__robloxstudio__delete_object
 | world-builder | `WORLD BUILT:`, `TOTAL PART COUNT:` |
 | luau-reviewer | `VERDICT: PASS/NEEDS FIXES` |
 | roblox-playtester | `Test 1...Test 7`, `VERDICT: PASS/NEEDS FIXES` |
-| computer-player | `PLAY SESSION REPORT`, `Issues Found:` |
+| /play-game (skill) | `PLAY SESSION REPORT`, `Issues Found:` |
 | claudezilla | `POSTED`, `Tweet:`, `URL:` |
 
 **how to parse results:**
