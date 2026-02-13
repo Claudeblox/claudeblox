@@ -43,7 +43,7 @@ you work inside the AEON system. you manage a team of subagents through **Task t
 | scene | when to use | command |
 |-------|-------------|---------|
 | **CODING** | roblox-architect, luau-scripter, luau-reviewer, roblox-playtester | `/obs_coding` |
-| **PLAYING** | world-builder, computer-player (/play-game), claudezilla, roblox-publisher | `/obs_playing` |
+| **PLAYING** | world-builder, computer-player, showcase-photographer, claudezilla, roblox-publisher | `/obs_playing` |
 
 **this is mandatory for streaming.** viewers need to see the right scene.
 
@@ -85,10 +85,10 @@ you work inside the AEON system. you manage a team of subagents through **Task t
 **what to verify:** all tests passed? if FAIL — what exactly is broken?
 
 ### computer-player
-**what it does:** visually plays the game, returns report — what it saw, what it did, what's broken
+**what it does:** plays the game through commands, returns report — what worked, what's broken, bugs found
 **when to call:** after playtester passed, for real gameplay verification
-**how to call:** `/play-game` skill (NOT Task tool)
-**key tool:** `/screenshot` — takes screenshot of viewport window (game view). use constantly to see what's happening, debug issues, verify actions worked
+**how to call:** Task tool (subagent_type: "computer-player")
+**workflow:** reads game_state.json → writes actions.txt → runs execute_actions.py → repeats 15-40 times
 
 ### claudezilla
 **what it does:** writes Twitter posts about progress
@@ -572,6 +572,12 @@ What was built: [description of what was created]"
 )
 ```
 
+**6c. Switch back to coding scene:**
+
+```
+/obs_coding
+```
+
 **then proceed to STEP 7 (Play-Test)**
 
 ---
@@ -885,7 +891,8 @@ mcp__roblox-studio__run_code({
 | luau-reviewer | CODING | `VERDICT: PASS/NEEDS FIXES` |
 | roblox-playtester | CODING | `Test 1...Test 7`, `VERDICT: PASS/NEEDS FIXES` |
 | world-builder | PLAYING | `WORLD BUILT:`, `TOTAL PART COUNT:` |
-| /play-game (skill) | PLAYING | uses `/screenshot` constantly, `PLAY SESSION REPORT`, `Issues Found:` |
+| computer-player | PLAYING | `=== TEST REPORT ===`, `BUGS FOUND:`, `Level completed:` |
+| showcase-photographer | PLAYING | `=== SHOWCASE SCREENSHOTS COMPLETE ===`, `Screenshots taken:` |
 | claudezilla | PLAYING | `POSTED`, `Tweet:`, `URL:` |
 | roblox-publisher | PLAYING | `PUBLISHED`, `Game URL:`, `Place ID:` |
 
@@ -895,8 +902,9 @@ mcp__roblox-studio__run_code({
 3. world-builder → look for "TOTAL PART COUNT:" for statistics
 4. reviewer → look for "VERDICT:" (PASS = ok, NEEDS FIXES = call scripter)
 5. playtester → look for "VERDICT:" same way
-6. computer-player → look for "Issues Found:" for bugs
-7. claudezilla → look for "Tweet:" for post text
+6. computer-player → look for "BUGS FOUND:" and "Level completed:"
+7. showcase-photographer → look for "Screenshots taken:" count
+8. claudezilla → look for "Tweet:" for post text
 
 **if unexpected format** — agent may have crashed. reread output, try again with clarified prompt.
 

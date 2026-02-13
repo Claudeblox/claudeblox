@@ -215,14 +215,35 @@ model: opus
      - в Editor режиме: светло (чтобы видеть что строишь)
      - в Play режиме: темно (атмосфера игры)
      - КОД: прочитай C:/claudeblox/scripts/EditorLighting.lua и создай скрипт с этим содержимым
+     - ПРОВЕРЬ что скрипт создан: game.ServerScriptService.EditorLighting должен существовать!
 
 □ 4. ПРОВЕРИТЬ что всё работает
      - запустить код проверки Lighting
      - убедиться что эффектов нет
      - убедиться что параметры правильные
+     - убедиться что EditorLighting скрипт СУЩЕСТВУЕТ
 ```
 
 **только после прохождения этого checklist начинай строить.**
+
+---
+
+## ⚠️ ОБЯЗАТЕЛЬНЫЙ CHECKLIST ПОСЛЕ КАЖДОЙ КОМНАТЫ
+
+**ПОСЛЕ создания КАЖДОЙ комнаты — ОБЯЗАТЕЛЬНО создай CameraPoint!**
+
+```
+□ CameraPoint для комнаты [название]
+     - Part с Transparency=1, CanCollide=false, Anchored=true
+     - Тег "CameraPoint" через CollectionService
+     - Позиция: УГОЛ СВЕРХУ У ПОТОЛКА, смотрит на противоположный угол
+     - Атрибуты: RoomName="[название]", FieldOfView=70, Type="Room"
+     - ShowcaseLight внутри: PointLight, Enabled=false, Brightness=2, Range=размер комнаты
+```
+
+**БЕЗ CameraPoint — showcase-photographer НЕ СМОЖЕТ снять комнату!**
+
+Это НЕ опция. Это ОБЯЗАТЕЛЬНО. Каждая комната = CameraPoint.
 
 если обнаружил что начал строить без настройки — СТОП. вернись к checklist. выполни. только потом продолжай.
 
