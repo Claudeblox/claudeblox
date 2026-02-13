@@ -42,14 +42,14 @@ you work inside the AEON system. you manage a team of subagents through **Task t
 
 | scene | when to use | command |
 |-------|-------------|---------|
-| **CODING** | roblox-architect, luau-scripter, luau-reviewer, roblox-playtester | `/obs_coding` |
-| **PLAYING** | world-builder, computer-player, showcase-photographer, claudezilla, roblox-publisher | `/obs_playing` |
+| **CODING** | roblox-architect, luau-scripter, luau-reviewer, roblox-playtester | `Skill(skill: "obs_coding")` |
+| **PLAYING** | world-builder, computer-player, showcase-photographer, claudezilla, roblox-publisher | `Skill(skill: "obs_playing")` |
 
 **this is mandatory for streaming.** viewers need to see the right scene.
 
 **pattern:**
 ```
-1. /obs_coding                    ← switch scene FIRST
+1. Skill(skill: "obs_coding")                    ← switch scene FIRST
 2. Task(subagent_type: "luau-scripter", ...)  ← then call agent
 ```
 
@@ -276,7 +276,7 @@ ACTIONS:
 
 **first, switch OBS scene:**
 ```
-/obs_coding
+Skill(skill: "obs_coding")
 ```
 
 **then call roblox-architect:**
@@ -315,7 +315,7 @@ all present? → save to `architecture.md` → STEP 3 (no pause between)
 **switch OBS + call luau-scripter:**
 
 ```
-/obs_coding
+Skill(skill: "obs_coding")
 
 Task(
   subagent_type: "luau-scripter",
@@ -377,7 +377,7 @@ good? → world-builder (immediately, no gap)
 **switch OBS + call world-builder:**
 
 ```
-/obs_playing
+Skill(skill: "obs_playing")
 
 Task(
   subagent_type: "world-builder",
@@ -453,7 +453,7 @@ good? → STEP 4 (immediately)
 **switch OBS + call luau-reviewer:**
 
 ```
-/obs_coding
+Skill(skill: "obs_coding")
 
 Task(
   subagent_type: "luau-reviewer",
@@ -496,7 +496,7 @@ Verify through get_script_source after each fix."
 **switch OBS + call roblox-playtester:**
 
 ```
-/obs_coding
+Skill(skill: "obs_coding")
 
 Task(
   subagent_type: "roblox-playtester",
@@ -549,7 +549,7 @@ del /Q C:\claudeblox\screenshots\showcase\* 2>nul
 ```
 
 ```
-/obs_playing
+Skill(skill: "obs_playing")
 
 Task(
   subagent_type: "showcase-photographer",
@@ -575,7 +575,7 @@ What was built: [description of what was created]"
 **6c. Switch back to coding scene:**
 
 ```
-/obs_coding
+Skill(skill: "obs_coding")
 ```
 
 **then proceed to STEP 7 (Play-Test)**
@@ -592,7 +592,7 @@ del /Q C:\claudeblox\screenshots\temp\* 2>nul
 **switch OBS + call computer-player:**
 
 ```
-/obs_playing
+Skill(skill: "obs_playing")
 
 Task(
   subagent_type: "computer-player",

@@ -56,15 +56,15 @@ def execute_command(line):
     elif cmd == "TURN_LEFT":
         degrees = int(arg) if arg else 45
         pixels = int(degrees * 6.67)  # ~600px = 90 degrees
-        action(f"--move-relative -{pixels} 0")
+        action(f"--move-relative -- -{pixels} 0")
 
     elif cmd == "TURN_RIGHT":
         degrees = int(arg) if arg else 45
         pixels = int(degrees * 6.67)
-        action(f"--move-relative {pixels} 0")
+        action(f"--move-relative -- {pixels} 0")
 
     elif cmd == "TURN_AROUND":
-        action("--move-relative 1200 0")  # 180 degrees
+        action("--move-relative -- 1200 0")  # 180 degrees
 
     # Actions
     elif cmd == "INTERACT":

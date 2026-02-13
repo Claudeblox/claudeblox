@@ -200,22 +200,16 @@ model: opus
      - SunRays? → УДАЛИТЬ
      - DepthOfField? → УДАЛИТЬ
 
-□ 2. НАСТРОИТЬ базовые параметры Lighting
-     - Brightness = 2 (пока строишь — чтобы видеть; в конце работы поставь 0)
-     - Ambient = Color3.fromRGB(0, 0, 0)
-     - OutdoorAmbient = Color3.fromRGB(0, 0, 0)
-     - EnvironmentDiffuseScale = 0
-     - EnvironmentSpecularScale = 0
-     - FogColor = Color3.fromRGB(0, 0, 0)
-     - FogStart = 0
-     - FogEnd = 80-100
-     - ClockTime = 0
+□ 2. НЕ МЕНЯТЬ базовые параметры Lighting!
+     - EditorLighting скрипт автоматически затемнит при Play
+     - В Editor оставь Lighting как есть (светло для строительства)
+     - НЕ ставь Brightness=0, НЕ делай Ambient чёрным
+     - Fog и другие параметры можно настроить по желанию
 
-□ 3. СОЗДАТЬ EditorLighting скрипт в ServerScriptService
-     - в Editor режиме: светло (чтобы видеть что строишь)
-     - в Play режиме: темно (атмосфера игры)
-     - КОД: прочитай C:/claudeblox/scripts/EditorLighting.lua и создай скрипт с этим содержимым
-     - ПРОВЕРЬ что скрипт создан: game.ServerScriptService.EditorLighting должен существовать!
+□ 3. ПРОВЕРИТЬ что EditorLighting скрипт существует
+     - game.ServerScriptService.EditorLighting должен быть
+     - Если нет — создай из C:/claudeblox/scripts/EditorLighting.lua
+     - Скрипт сам затемнит при Play, тебе НЕ НАДО затемнять!
 
 □ 4. ПРОВЕРИТЬ что всё работает
      - запустить код проверки Lighting

@@ -30,7 +30,13 @@ python C:/claudeblox/scripts/showcase_screenshots.py
 
 ## WHAT YOU DO
 
-Run one command:
+**Step 1: Start game_bridge (if not running):**
+```bash
+start /B python C:/claudeblox/scripts/game_bridge.py
+timeout /t 2
+```
+
+**Step 2: Run screenshots:**
 ```bash
 python C:/claudeblox/scripts/showcase_screenshots.py
 ```

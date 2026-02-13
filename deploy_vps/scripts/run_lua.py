@@ -22,7 +22,7 @@ def run_lua(code):
 
     try:
         response = requests.post(
-            "http://localhost:8586/run_code",
+            "http://localhost:8585/run_code",
             json={"code": code},
             timeout=10
         )

@@ -29,6 +29,22 @@ class GameBridgeHandler(BaseHTTPRequestHandler):
             content_length = int(self.headers.get('Content-Length', 0))
             body = self.rfile.read(content_length).decode('utf-8')
 
+            # Handle /run_code endpoint for Lua execution
+            if self.path == '/run_code':
+                data = json.loads(body)
+                code = data.get('code', '')
+                print(f"[{datetime.now().strftime('%H:%M:%S')}] run_code request: {code[:50]}...")
+
+                # TODO: Forward to MCP or execute via plugin
+                # For now, return placeholder - actual execution happens via MCP
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                self.wfile.write(json.dumps({"result": "Code forwarded to MCP", "code": code}).encode())
+                return
+
+            # Default: game state update
             data = json.loads(body)
             data['timestamp'] = datetime.now().isoformat()
             data['received'] = True
