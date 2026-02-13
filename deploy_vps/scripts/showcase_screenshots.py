@@ -28,10 +28,20 @@ def run_lua(code):
         return ""
 
 def get_camera_points():
-    """Get all CameraPoints from the game"""
+    """Get all CameraPoints from the game (by tag or by name pattern)"""
     code = '''
 local CS = game:GetService("CollectionService")
 local points = CS:GetTagged("CameraPoint")
+
+-- Fallback: if no tagged points, search by name pattern
+if #points == 0 then
+    for _, obj in workspace:GetDescendants() do
+        if obj:IsA("BasePart") and obj.Name:match("^CameraPoint") then
+            table.insert(points, obj)
+        end
+    end
+end
+
 local result = {}
 for _, point in ipairs(points) do
     local roomName = point:GetAttribute("RoomName") or point.Name

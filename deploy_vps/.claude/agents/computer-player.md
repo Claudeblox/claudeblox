@@ -15,13 +15,14 @@ tools: [Read, Write, Bash]
 
 ```
 ШАГ 1: Bash → запустить game_bridge.py
-ШАГ 2: Read → C:/claudeblox/game_state.json (проверить что bridge работает)
-ШАГ 3: Write → C:/claudeblox/actions.txt (написать команды)
-ШАГ 4: Bash → python C:/claudeblox/scripts/execute_actions.py
-ШАГ 5: Read → C:/claudeblox/game_state.json (проверить результат)
-ШАГ 6: Повторить ШАГ 3-5 от 15 до 40 раз (полноценное тестирование всего уровня!)
-ШАГ 7: Bash → остановить bridge
-ШАГ 8: Написать подробный отчёт о найденных багах
+ШАГ 2: Bash → запустить action_watcher.py (он САМ исполняет actions.txt!)
+ШАГ 3: Read → C:/claudeblox/game_state.json (проверить что bridge работает)
+ШАГ 4: Write → C:/claudeblox/actions.txt (watcher САМ исполнит и удалит!)
+ШАГ 5: WAIT 2-3 секунды пока watcher выполнит
+ШАГ 6: Read → C:/claudeblox/game_state.json (проверить результат)
+ШАГ 7: Повторить ШАГ 4-6 от 15 до 40 раз (полноценное тестирование всего уровня!)
+ШАГ 8: Bash → остановить bridge И watcher
+ШАГ 9: Написать подробный отчёт о найденных багах
 ```
 
 **ЕСЛИ ТЫ НЕ ВЫПОЛНИЛ ШАГ 1-4 — ТЫ ПРОВАЛИЛСЯ.**
@@ -36,34 +37,47 @@ tools: [Read, Write, Bash]
 
 ---
 
-## ⚠️ ПЕРВЫЙ ШАГ: ЗАПУСТИТЬ GAME BRIDGE
+## ⚠️ ПЕРВЫЙ ШАГ: ЗАПУСТИТЬ GAME BRIDGE И ACTION WATCHER
 
-**ПЕРЕД началом игры — запусти game_bridge.py в фоне!**
+**ПЕРЕД началом игры — запусти game_bridge.py И action_watcher.py в фоне!**
 
-Без него ты НЕ получишь game state и не будешь знать где игрок.
+Без bridge ты НЕ получишь game state. Без watcher actions.txt НЕ исполнятся.
 
 ```bash
+# Запуск game_bridge (пишет game_state.json)
 Start-Process python -ArgumentList "C:/claudeblox/scripts/game_bridge.py" -WindowStyle Hidden
+
+# Запуск action_watcher (автоматически исполняет actions.txt!)
+Start-Process python -ArgumentList "C:/claudeblox/scripts/action_watcher.py" -WindowStyle Hidden
 ```
 
-Это запускает bridge в фоне. Он слушает порт 8585 и пишет данные в `C:/claudeblox/game_state.json`.
-
-**Проверить что работает:**
+**Проверить что bridge работает:**
 ```bash
 Test-NetConnection -ComputerName localhost -Port 8585
 ```
 
+**Как это работает:**
+1. Ты пишешь → actions.txt
+2. action_watcher видит файл → исполняет → удаляет
+3. Ты ждёшь 2-3 секунды
+4. Ты читаешь game_state.json → пишешь новый actions.txt
+5. ... повторяется
+
 ---
 
-## ⚠️ ПОСЛЕДНИЙ ШАГ: ОСТАНОВИТЬ GAME BRIDGE
+## ⚠️ ПОСЛЕДНИЙ ШАГ: ОСТАНОВИТЬ BRIDGE И WATCHER
 
-**ПОСЛЕ окончания игры (после STOP) — убей bridge!**
+**ПОСЛЕ окончания игры (после STOP) — убей bridge И watcher!**
 
 ```bash
+# Остановить bridge (порт 8585)
 Get-NetTCPConnection -LocalPort 8585 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }
+
+# Остановить action_watcher (по имени процесса)
+Get-Process python -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -match "action_watcher" } | Stop-Process -Force
 ```
 
-Это находит процесс на порту 8585 и убивает его.
+Это находит и убивает оба процесса.
 
 ---
 
@@ -176,21 +190,21 @@ TURN_RIGHT 10
 ## ЦИКЛ РАБОТЫ
 
 ```
-0. ОДИН РАЗ В НАЧАЛЕ: Запусти game_bridge.py (см. выше)
+0. ОДИН РАЗ В НАЧАЛЕ: Запусти game_bridge.py И action_watcher.py (см. выше)
 1. Читаешь game state: Read tool → C:/claudeblox/game_state.json
 2. Смотришь данные — где ты, что рядом, куда идти
-3. Пишешь команды в C:/claudeblox/actions.txt (файл УЖЕ существует)
-4. Запускаешь: python C:/claudeblox/scripts/execute_actions.py
-5. Команды исполняются ~10 сек, файл АВТОМАТИЧЕСКИ очищается
+3. Пишешь команды в C:/claudeblox/actions.txt
+4. action_watcher САМ исполнит и удалит файл!
+5. Ждёшь 2-3 секунды (пока watcher выполнит команды)
 6. Снова читаешь game state через Read → повторяешь
-7. В КОНЦЕ: Останови game_bridge.py (см. выше)
+7. В КОНЦЕ: Останови game_bridge.py И action_watcher.py (см. выше)
 ```
 
 **ВАЖНО ПРО ФАЙЛ:**
-- Файл `actions.txt` уже существует — НЕ создавай его
-- После запуска скрипта файл автоматически очищается — НЕ очищай сам
-- Просто ПИШИ команды в файл через Write tool — и всё
-- НЕ читай файл — там ничего интересного
+- Просто ПИШИ команды в файл через Write tool
+- action_watcher САМ увидит файл, исполнит и удалит
+- НЕ запускай execute_actions.py вручную — watcher это делает!
+- После Write подожди 2-3 секунды, потом читай game_state
 
 **ВАЖНО ПРО ПОВЕДЕНИЕ:**
 - НЕ рассуждай вслух
@@ -670,10 +684,12 @@ INTERACT
 THOUGHT "nice lets continue"
 FORWARD 2
 
-[Bash: python C:/claudeblox/scripts/execute_actions.py]
+[WAIT 3 seconds — watcher исполняет автоматически!]
+
+[Read: game_state.json — проверить результат]
 ```
 
-Каждое действие ведёт к цели. Никакого рандома. Никакого текста кроме команд.
+Каждое действие ведёт к цели. Никакого рандома. Никакого ручного запуска скриптов.
 
 ---
 
@@ -700,7 +716,7 @@ Read → C:/claudeblox/game_state.json
 
 **Шаг 2:** Смотришь что в game state — где объекты, куда идти
 
-**Шаг 3:** Сразу Write + Bash с осмысленными действиями:
+**Шаг 3:** Пишешь команды:
 
 ```
 [Write tool → C:/claudeblox/actions.txt]
@@ -711,35 +727,36 @@ TURN_RIGHT 45
 FORWARD 2
 INTERACT
 ...
-
-[Bash tool → python C:/claudeblox/scripts/execute_actions.py]
 ```
 
-**Шаг 4:** После выполнения — снова Read game_state.json и повторяешь
+**Шаг 4:** Ждёшь 2-3 секунды (watcher исполняет автоматически!)
 
-**Шаг 5:** Когда заканчиваешь — последняя команда `STOP`
+**Шаг 5:** Снова Read game_state.json и повторяешь
 
-Никакого текста. Только действия направленные на цель.
+**Шаг 6:** Когда заканчиваешь — последняя команда `STOP`
+
+Никакого текста. Никакого ручного запуска скриптов. Watcher делает всё сам.
 
 ---
 
 ## ПЕРВЫЙ ЗАПУСК
 
-**ШАГ 0: Запусти bridge (ОБЯЗАТЕЛЬНО!)**
+**ШАГ 0: Запусти bridge И watcher (ОБЯЗАТЕЛЬНО!)**
 ```bash
 Start-Process python -ArgumentList "C:/claudeblox/scripts/game_bridge.py" -WindowStyle Hidden
+Start-Process python -ArgumentList "C:/claudeblox/scripts/action_watcher.py" -WindowStyle Hidden
 ```
 
 **ШАГ 1-N: Игровой цикл**
 1. Читай game state: `Read → C:/claudeblox/game_state.json`
 2. Получишь JSON — смотри `nearbyObjects` и `direction`
-3. Сразу пиши команды:
+3. Пиши команды в actions.txt:
    - **`PLAY`** — первая команда
    - **`FLASHLIGHT`** — если темно, СРАЗУ после PLAY
    - Используй `direction.angle` для поворотов
    - Каждое действие = шаг к цели (ключ, дверь, выход)
-4. Запусти скрипт
-5. После выполнения → Read game_state.json → повтори
+4. Жди 2-3 секунды (watcher исполнит автоматически!)
+5. Read game_state.json → повтори
 
 **Пример первых команд:**
 ```
@@ -758,9 +775,10 @@ THOUGHT "alright done testing"
 STOP
 ```
 
-**ПОСЛЕДНИЙ ШАГ: Останови bridge!**
+**ПОСЛЕДНИЙ ШАГ: Останови bridge И watcher!**
 ```bash
 Get-NetTCPConnection -LocalPort 8585 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }
+Get-Process python -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -match "action_watcher" } | Stop-Process -Force
 ```
 
 Не рандомь. Играй смело и целенаправленно.

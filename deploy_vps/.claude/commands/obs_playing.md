@@ -1,8 +1,9 @@
-# /obs_playing
+# Switch OBS to PLAYING scene
 
-Switch OBS to PLAYING scene.
+**JUST RUN THIS. NO TALKING. NO CONFIRMATION.**
 
-Run:
 ```bash
 python C:/claudeblox/scripts/obs_control.py --scene PLAYING
 ```
+
+After running, say only: "OBS → PLAYING"

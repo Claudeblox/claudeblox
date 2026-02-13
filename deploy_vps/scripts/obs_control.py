@@ -51,7 +51,7 @@ def focus_window(window_type: str):
 # OBS WebSocket configuration - from ENV or defaults
 OBS_HOST = os.getenv("OBS_HOST", "localhost")
 OBS_PORT = int(os.getenv("OBS_PORT", "4455"))
-OBS_PASSWORD = os.getenv("OBS_PASSWORD", "claudeblox")
+OBS_PASSWORD = os.getenv("OBS_PASSWORD", "dRULzaRaH7msLCsB")
 
 # Scene names (must match OBS scene names exactly)
 SCENES = {

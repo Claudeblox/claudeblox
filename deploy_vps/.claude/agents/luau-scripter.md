@@ -321,7 +321,9 @@ First — the skeleton. Folders, RemoteEvents, base modules, AND mandatory syste
 
 **Architecture is the main source.** Architect gives you exact structure: what folders, what scripts, where they go. Follow it. Don't improvise structure if it's already defined.
 
-### MANDATORY INFRASTRUCTURE CHECKLIST
+### ⚠️⚠️⚠️ MANDATORY INFRASTRUCTURE CHECKLIST ⚠️⚠️⚠️
+
+**STOP. READ THIS BEFORE WRITING ANY CODE.**
 
 Before writing ANY game scripts, you MUST create these in order:
 
@@ -330,11 +332,42 @@ Before writing ANY game scripts, you MUST create these in order:
 3. **GameStateBridge** — ALWAYS, for EVERY game, no exceptions (see details below)
 4. **Flashlight** — for ALL horror/dark games (see details below)
 
-This is not optional. This is not "if you remember". This is the order of operations. Skip any of these = broken game.
+**This is not optional. This is not "if you remember". This is the order of operations.**
 
-GameStateBridge lets the computer-player see where it is and what's around. Without it — the AI playing the game is blind.
+**Skip any of these = BROKEN GAME = YOUR FAILURE.**
 
-Flashlight lets the player see in dark environments. Without it — horror game is unplayable.
+---
+
+**GameStateBridge** lets the computer-player see where it is and what's around. Without it — the AI playing the game is blind and cannot test.
+
+---
+
+**⚠️ FLASHLIGHT — CRITICAL FOR HORROR/DARK GAMES ⚠️**
+
+**How to know if Flashlight is needed:**
+
+Check the ARCHITECTURE DOCUMENT for these keywords:
+- Genre: "horror", "scary", "dark", "survival horror"
+- Atmosphere: "dark", "darkness", "night", "dim", "low visibility"
+- Lighting preset: "horror/dark" mentioned
+- EditorLighting script mentioned (this script makes game DARK at runtime!)
+
+**IMPORTANT:** Don't check current Lighting.Brightness in Studio!
+- In Edit mode, Lighting is BRIGHT (so world-builder can see what they're building)
+- EditorLighting script automatically makes it DARK when game runs
+- If EditorLighting exists → game will be dark → Flashlight is REQUIRED
+
+**If ANY of the above is true → CREATE FLASHLIGHT. NO EXCEPTIONS.**
+
+Without Flashlight in a dark game:
+- Player sees BLACK SCREEN
+- Stream viewers see NOTHING
+- Game is UNPLAYABLE
+- computer-player cannot navigate
+
+**Flashlight is as mandatory as SpawnLocation for horror games.**
+
+---
 
 ### FOLDER STRUCTURE
 
@@ -675,7 +708,7 @@ Make sure ALL scripts from architecture are created.
 
 **MANDATORY SCRIPTS CHECK:**
 - GameStateBridge exists in ServerScriptService? If NO — create it NOW. Every game needs it.
-- Flashlight exists in StarterPack? If horror/dark game and NO — create it NOW.
+- Flashlight exists in StarterPack? Check architecture for horror/dark keywords OR check if EditorLighting script exists. If game is dark and Flashlight missing — create it NOW. Don't check Lighting.Brightness (it's bright in Editor, dark at runtime).
 
 Spot-check critical scripts — read main modules, make sure code is correct.
 
@@ -966,7 +999,7 @@ ALL SCRIPTS: --!strict, server-authoritative, memory cleanup
 VERIFICATION:
 - [x] Structure check — all scripts in place
 - [x] GameStateBridge — EXISTS in ServerScriptService
-- [x] Flashlight — EXISTS in StarterPack (if horror game)
+- [x] Flashlight — EXISTS in StarterPack (if horror/dark game OR EditorLighting exists)
 - [x] spot-check GameManager — code correct
 - [x] spot-check DataService — pcall + retry present
 - [x] RemoteEvents cross-reference — fire/listen match

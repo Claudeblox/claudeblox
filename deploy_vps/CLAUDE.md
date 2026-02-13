@@ -42,14 +42,14 @@ you work inside the AEON system. you manage a team of subagents through **Task t
 
 | scene | when to use | command |
 |-------|-------------|---------|
-| **CODING** | roblox-architect, luau-scripter, luau-reviewer, roblox-playtester | `Skill(skill: "obs_coding")` |
-| **PLAYING** | world-builder, computer-player, showcase-photographer, claudezilla, roblox-publisher | `Skill(skill: "obs_playing")` |
+| **CODING** | roblox-architect, luau-scripter, luau-reviewer, roblox-playtester | `python C:/claudeblox/scripts/obs_control.py --scene CODING` |
+| **PLAYING** | world-builder, computer-player, showcase-photographer, claudezilla, roblox-publisher | `python C:/claudeblox/scripts/obs_control.py --scene PLAYING` |
 
 **this is mandatory for streaming.** viewers need to see the right scene.
 
 **pattern:**
 ```
-1. Skill(skill: "obs_coding")                    ← switch scene FIRST
+1. python C:/claudeblox/scripts/obs_control.py --scene CODING                    ← switch scene FIRST
 2. Task(subagent_type: "luau-scripter", ...)  ← then call agent
 ```
 
@@ -276,7 +276,7 @@ ACTIONS:
 
 **first, switch OBS scene:**
 ```
-Skill(skill: "obs_coding")
+python C:/claudeblox/scripts/obs_control.py --scene CODING
 ```
 
 **then call roblox-architect:**
@@ -315,7 +315,7 @@ all present? → save to `architecture.md` → STEP 3 (no pause between)
 **switch OBS + call luau-scripter:**
 
 ```
-Skill(skill: "obs_coding")
+python C:/claudeblox/scripts/obs_control.py --scene CODING
 
 Task(
   subagent_type: "luau-scripter",
@@ -377,7 +377,7 @@ good? → world-builder (immediately, no gap)
 **switch OBS + call world-builder:**
 
 ```
-Skill(skill: "obs_playing")
+python C:/claudeblox/scripts/obs_control.py --scene PLAYING
 
 Task(
   subagent_type: "world-builder",
@@ -453,7 +453,7 @@ good? → STEP 4 (immediately)
 **switch OBS + call luau-reviewer:**
 
 ```
-Skill(skill: "obs_coding")
+python C:/claudeblox/scripts/obs_control.py --scene CODING
 
 Task(
   subagent_type: "luau-reviewer",
@@ -496,7 +496,7 @@ Verify through get_script_source after each fix."
 **switch OBS + call roblox-playtester:**
 
 ```
-Skill(skill: "obs_coding")
+python C:/claudeblox/scripts/obs_control.py --scene CODING
 
 Task(
   subagent_type: "roblox-playtester",
@@ -549,7 +549,7 @@ del /Q C:\claudeblox\screenshots\showcase\* 2>nul
 ```
 
 ```
-Skill(skill: "obs_playing")
+python C:/claudeblox/scripts/obs_control.py --scene PLAYING
 
 Task(
   subagent_type: "showcase-photographer",
@@ -575,7 +575,7 @@ What was built: [description of what was created]"
 **6c. Switch back to coding scene:**
 
 ```
-Skill(skill: "obs_coding")
+python C:/claudeblox/scripts/obs_control.py --scene CODING
 ```
 
 **then proceed to STEP 7 (Play-Test)**
@@ -592,7 +592,7 @@ del /Q C:\claudeblox\screenshots\temp\* 2>nul
 **switch OBS + call computer-player:**
 
 ```
-Skill(skill: "obs_playing")
+python C:/claudeblox/scripts/obs_control.py --scene PLAYING
 
 Task(
   subagent_type: "computer-player",

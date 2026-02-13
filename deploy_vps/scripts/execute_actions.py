@@ -7,6 +7,12 @@ import time
 import sys
 import os
 
+try:
+    import pyautogui
+except ImportError:
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "pyautogui"])
+    import pyautogui
+
 ACTIONS_FILE = "C:/claudeblox/actions.txt"
 ACTION_SCRIPT = "C:/claudeblox/scripts/action.py"
 SCREENSHOT_SCRIPT = "C:/claudeblox/scripts/screenshot_game.py"
@@ -38,19 +44,19 @@ def execute_command(line):
     # Movement commands
     if cmd == "FORWARD":
         seconds = float(arg) if arg else 1
-        action(f"--key w --hold {seconds}")
+        action(f"--hold w --duration {seconds}")
 
     elif cmd == "BACK":
         seconds = float(arg) if arg else 1
-        action(f"--key s --hold {seconds}")
+        action(f"--hold s --duration {seconds}")
 
     elif cmd == "LEFT":
         seconds = float(arg) if arg else 1
-        action(f"--key a --hold {seconds}")
+        action(f"--hold a --duration {seconds}")
 
     elif cmd == "RIGHT":
         seconds = float(arg) if arg else 1
-        action(f"--key d --hold {seconds}")
+        action(f"--hold d --duration {seconds}")
 
     # Turn commands (camera always horizontal, Y=0)
     elif cmd == "TURN_LEFT":
@@ -77,14 +83,18 @@ def execute_command(line):
         action("--key space")
 
     elif cmd == "SPRINT_ON":
-        action("--key lshift --hold 0.1")  # start holding shift
-        # Note: for continuous sprint, use FORWARD with sprint
+        action("--hold shift --duration 0.1")  # start holding shift
+        # Note: for continuous sprint, use SPRINT_FORWARD
 
     elif cmd == "SPRINT_FORWARD":
         seconds = float(arg) if arg else 1
-        # Hold shift + W together
-        subprocess.run(f"python {ACTION_SCRIPT} --key lshift+w --hold {seconds}", shell=True)
-        time.sleep(0.15)
+        # Hold shift+w together using pyautogui directly
+        pyautogui.keyDown('shift')
+        pyautogui.keyDown('w')
+        time.sleep(seconds)
+        pyautogui.keyUp('w')
+        pyautogui.keyUp('shift')
+        print(f"Sprint forward for {seconds}s")
 
     # Utility
     elif cmd == "WAIT":
