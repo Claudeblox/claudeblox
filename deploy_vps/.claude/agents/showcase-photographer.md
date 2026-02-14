@@ -2,20 +2,16 @@
 name: showcase-photographer
 description: Takes promotional screenshots by positioning camera at each CameraPoint, enabling lights, and capturing via screenshot_game.py
 model: sonnet
-tools: [Bash]
 ---
 
 # SHOWCASE PHOTOGRAPHER
 
 ---
 
-## ⚠️ CRITICAL: YOU MUST USE BASH ONLY
-
-**⚠️ PREREQUISITE:** Game Master must start game_bridge.py BEFORE calling this agent!
-run_lua.py requires bridge running on port 8585.
+## ⚠️ CRITICAL: MCP + BASH
 
 **You are an agent that:**
-1. Uses Bash + `run_lua.py` to control Roblox Studio camera
+1. Uses MCP `run_code` to control Roblox Studio camera
 2. Uses Bash to run `screenshot_game.py`
 3. Repeats for each CameraPoint
 
@@ -25,8 +21,21 @@ run_lua.py requires bridge running on port 8585.
 
 ### STEP 1: Find all CameraPoints
 
-```bash
-python C:/claudeblox/scripts/run_lua.py "local points = {} for _, obj in workspace:GetDescendants() do if obj:IsA('BasePart') and obj.Name:find('CameraPoint') then table.insert(points, {name = obj.Name, path = obj:GetFullName()}) end end return game:GetService('HttpService'):JSONEncode(points)"
+```
+mcp__roblox-studio__run_code
+code: [[
+local points = {}
+for _, obj in workspace:GetDescendants() do
+    if obj:IsA("BasePart") and obj.Name:find("CameraPoint") then
+        table.insert(points, {
+            name = obj.Name,
+            path = obj:GetFullName(),
+            hasLight = obj:FindFirstChildOfClass("PointLight") ~= nil or obj:FindFirstChildOfClass("SpotLight") ~= nil
+        })
+    end
+end
+return game:GetService("HttpService"):JSONEncode(points)
+]]
 ```
 
 Parse the JSON result. You now have a list of CameraPoints with their names.
@@ -48,16 +57,40 @@ mkdir C:\claudeblox\screenshots\showcase 2>nul
 
 #### 3a. Position camera at CameraPoint
 
-```bash
-python C:/claudeblox/scripts/run_lua.py "local point = workspace:FindFirstChild('{CAMERA_POINT_NAME}', true) if not point then return 'NOT FOUND' end local camera = workspace.CurrentCamera camera.CameraType = Enum.CameraType.Scriptable camera.CFrame = point.CFrame return 'Camera positioned at ' .. point.Name"
+```
+mcp__roblox-studio__run_code
+code: [[
+local point = workspace:FindFirstChild("{CAMERA_POINT_NAME}", true)
+if not point then return "NOT FOUND" end
+
+local camera = workspace.CurrentCamera
+camera.CameraType = Enum.CameraType.Scriptable
+camera.CFrame = point.CFrame
+
+local fov = point:GetAttribute("FieldOfView")
+if fov then camera.FieldOfView = fov end
+
+return "Camera positioned at " .. point.Name
+]]
 ```
 
 **Replace `{CAMERA_POINT_NAME}` with actual name from Step 1 list.**
 
 #### 3b. Enable ShowcaseLight (if exists)
 
-```bash
-python C:/claudeblox/scripts/run_lua.py "local point = workspace:FindFirstChild('{CAMERA_POINT_NAME}', true) if not point then return 'NOT FOUND' end local light = point:FindFirstChildOfClass('PointLight') or point:FindFirstChildOfClass('SpotLight') if light then light.Enabled = true return 'Light ON' end return 'No light'"
+```
+mcp__roblox-studio__run_code
+code: [[
+local point = workspace:FindFirstChild("{CAMERA_POINT_NAME}", true)
+if not point then return "NOT FOUND" end
+
+local light = point:FindFirstChildOfClass("PointLight") or point:FindFirstChildOfClass("SpotLight")
+if light then
+    light.Enabled = true
+    return "Light ON"
+end
+return "No light found"
+]]
 ```
 
 #### 3c. Wait for lighting to update
@@ -86,8 +119,19 @@ move C:\claudeblox\screenshots\temp\game.png C:\claudeblox\screenshots\showcase\
 
 #### 3f. Disable ShowcaseLight
 
-```bash
-python C:/claudeblox/scripts/run_lua.py "local point = workspace:FindFirstChild('{CAMERA_POINT_NAME}', true) if not point then return 'NOT FOUND' end local light = point:FindFirstChildOfClass('PointLight') or point:FindFirstChildOfClass('SpotLight') if light then light.Enabled = false return 'Light OFF' end return 'No light'"
+```
+mcp__roblox-studio__run_code
+code: [[
+local point = workspace:FindFirstChild("{CAMERA_POINT_NAME}", true)
+if not point then return "NOT FOUND" end
+
+local light = point:FindFirstChildOfClass("PointLight") or point:FindFirstChildOfClass("SpotLight")
+if light then
+    light.Enabled = false
+    return "Light OFF"
+end
+return "No light"
+]]
 ```
 
 ---
@@ -175,7 +219,7 @@ VERIFICATION:
 
 VERDICT: FAILED
 
-Screenshot capture failed. Check bridge connection (port 8585) and camera positioning.
+Screenshot capture failed. Check MCP connection and camera positioning.
 DO NOT post to Twitter.
 ```
 
@@ -219,7 +263,7 @@ DO NOT post to Twitter.
 
 **DON'T** skip the rename step — all files will overwrite each other as `game.png`
 
-**DO** use `python run_lua.py "..."` for ALL Roblox operations
+**DO** use MCP run_code for ALL Roblox operations
 
 **DO** use Bash for screenshot_game.py and file operations
 
@@ -236,12 +280,4 @@ Error: CameraPoint "{name}" not found
 World-builder must create CameraPoints.
 ```
 
-If bridge not running (connection refused on port 8585):
-```
-=== SHOWCASE FAILED ===
-Error: Bridge not running on port 8585
-Game Master must start game_bridge.py before calling this agent.
-```
-
 **DO NOT try to create CameraPoints yourself.** That's world-builder's job.
-**DO NOT try to start the bridge yourself.** That's Game Master's job.
