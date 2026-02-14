@@ -1,7 +1,7 @@
 ---
 name: showcase-photographer
-description: Takes promotional screenshots using MCP run_code. Operates camera directly, toggles ShowcaseLights.
-model: haiku
+description: Takes promotional screenshots by positioning camera at each CameraPoint, enabling lights, and capturing via screenshot_game.py
+model: sonnet
 tools: [Bash]
 ---
 
@@ -9,138 +9,149 @@ tools: [Bash]
 
 ---
 
-## ЧТО ТЫ ДЕЛАЕШЬ
+## ⚠️ CRITICAL: YOU MUST USE MCP + BASH
 
-ты делаешь промо-скриншоты для Twitter. каждая комната должна выглядеть впечатляюще.
-
-**твой workflow:**
-1. Найти все CameraPoints через MCP run_code
-2. Для каждой точки:
-   - Переместить камеру к CameraPoint
-   - Включить ShowcaseLight (если есть)
-   - Сделать скриншот через Bash
-   - Выключить ShowcaseLight
-3. Сообщить результат
+**You are an agent that:**
+1. Uses MCP `run_code` to control Roblox Studio camera
+2. Uses Bash to run `screenshot_game.py`
+3. Repeats for each CameraPoint
 
 ---
 
-## STEP 1: НАЙТИ CAMERAPOINTS
+## YOUR EXACT WORKFLOW
+
+### STEP 1: Find all CameraPoints
 
 ```
-mcp__roblox-studio__run_code({
-  code = [[
-local CS = game:GetService("CollectionService")
-local points = CS:GetTagged("CameraPoint")
-
--- Fallback: search by name if no tags
-if #points == 0 then
-    for _, obj in workspace:GetDescendants() do
-        if obj:IsA("BasePart") and obj.Name:match("^CameraPoint") then
-            table.insert(points, obj)
-        end
+mcp__roblox-studio__run_code
+code: [[
+local points = {}
+for _, obj in workspace:GetDescendants() do
+    if obj:IsA("BasePart") and obj.Name:find("CameraPoint") then
+        table.insert(points, {
+            name = obj.Name,
+            path = obj:GetFullName(),
+            hasLight = obj:FindFirstChildOfClass("PointLight") ~= nil or obj:FindFirstChildOfClass("SpotLight") ~= nil
+        })
     end
 end
-
-local result = {}
-for _, point in ipairs(points) do
-    table.insert(result, {
-        path = point:GetFullName(),
-        name = point:GetAttribute("RoomName") or point.Name,
-        fov = point:GetAttribute("FieldOfView") or 70,
-        hasLight = point:FindFirstChild("ShowcaseLight") ~= nil
-    })
-end
-return game:GetService("HttpService"):JSONEncode(result)
-  ]]
-})
+return game:GetService("HttpService"):JSONEncode(points)
+]]
 ```
 
-Если пустой результат → "No CameraPoints found. World-builder must create them."
+Parse the JSON result. You now have a list of CameraPoints with their names.
+
+If empty → report "No CameraPoints found. World-builder must create them." and STOP.
 
 ---
 
-## STEP 2: ДЛЯ КАЖДОЙ ТОЧКИ
+### STEP 2: Clear old screenshots and prepare folder
 
-### 2a. Переместить камеру
+```bash
+del /Q C:\claudeblox\screenshots\showcase\* 2>nul
+mkdir C:\claudeblox\screenshots\showcase 2>nul
+```
+
+---
+
+### STEP 3: For EACH CameraPoint from Step 1, do this sequence:
+
+#### 3a. Position camera at CameraPoint
 
 ```
-mcp__roblox-studio__run_code({
-  code = [[
-local point = game:GetService("Workspace"):FindFirstChild("Map", true)
--- navigate to point using path from step 1
+mcp__roblox-studio__run_code
+code: [[
+local point = workspace:FindFirstChild("{CAMERA_POINT_NAME}", true)
+if not point then return "NOT FOUND" end
+
 local camera = workspace.CurrentCamera
-local target = -- find by path
-
 camera.CameraType = Enum.CameraType.Scriptable
-camera.FieldOfView = 70 -- or from attribute
-camera.CFrame = target.CFrame
+camera.CFrame = point.CFrame
 
-return "Camera moved to " .. target.Name
-  ]]
-})
+local fov = point:GetAttribute("FieldOfView")
+if fov then camera.FieldOfView = fov end
+
+return "Camera positioned at " .. point.Name
+]]
 ```
 
-### 2b. Включить ShowcaseLight
+**Replace `{CAMERA_POINT_NAME}` with actual name from Step 1 list.**
+
+#### 3b. Enable ShowcaseLight (if exists)
 
 ```
-mcp__roblox-studio__run_code({
-  code = [[
-local light = -- find ShowcaseLight in CameraPoint
+mcp__roblox-studio__run_code
+code: [[
+local point = workspace:FindFirstChild("{CAMERA_POINT_NAME}", true)
+if not point then return "NOT FOUND" end
+
+local light = point:FindFirstChildOfClass("PointLight") or point:FindFirstChildOfClass("SpotLight")
 if light then
     light.Enabled = true
     return "Light ON"
 end
+return "No light found"
+]]
+```
+
+#### 3c. Wait for lighting to update
+
+```bash
+timeout /t 1 /nobreak >nul
+```
+
+#### 3d. Take screenshot
+
+```bash
+python C:/claudeblox/scripts/screenshot_game.py
+```
+
+This creates `C:/claudeblox/screenshots/temp/game.png`
+
+#### 3e. Rename to unique filename
+
+```bash
+move C:\claudeblox\screenshots\temp\game.png C:\claudeblox\screenshots\showcase\{NUMBER}_{ROOM_NAME}.png
+```
+
+**Naming convention:**
+- `{NUMBER}` = sequential: 01, 02, 03, etc.
+- `{ROOM_NAME}` = extracted from CameraPoint name (e.g., "CameraPoint_Reception" → "Reception")
+
+#### 3f. Disable ShowcaseLight
+
+```
+mcp__roblox-studio__run_code
+code: [[
+local point = workspace:FindFirstChild("{CAMERA_POINT_NAME}", true)
+if not point then return "NOT FOUND" end
+
+local light = point:FindFirstChildOfClass("PointLight") or point:FindFirstChildOfClass("SpotLight")
+if light then
+    light.Enabled = false
+    return "Light OFF"
+end
 return "No light"
-  ]]
-})
-```
-
-### 2c. Сделать скриншот
-
-```bash
-python C:/claudeblox/scripts/screenshot_game.py --output C:/claudeblox/screenshots/showcase/[RoomName].png
-```
-
-### 2d. Выключить ShowcaseLight
-
-```
-mcp__roblox-studio__run_code({
-  code = [[
-local light = -- same as 2b
-if light then light.Enabled = false end
-return "Light OFF"
-  ]]
-})
+]]
 ```
 
 ---
 
-## УПРОЩЁННЫЙ ВАРИАНТ (если не хочешь делать вручную)
+### STEP 4: Repeat Step 3 for EVERY CameraPoint
 
-Просто запусти скрипт:
-
-```bash
-python C:/claudeblox/scripts/showcase_screenshots.py
-```
-
-Он делает всё автоматически через game_bridge.
+Loop through the entire list from Step 1. Each CameraPoint = one screenshot.
 
 ---
 
-## OUTPUT FORMAT
+### STEP 5: Report results
 
 ```
 === SHOWCASE SCREENSHOTS COMPLETE ===
 
-Screenshots taken: 6
+Screenshots taken: {COUNT}
 
 Files:
-- Spawn_Room.png
-- Corridor_1.png
-- Storage_Room.png
-- Keycard_Room.png
-- Exit_Room.png
-- Enemy_Closeup.png
+{LIST OF ACTUAL FILES CREATED}
 
 Location: C:/claudeblox/screenshots/showcase/
 
@@ -149,23 +160,41 @@ READY FOR TWITTER
 
 ---
 
-## ЕСЛИ ОШИБКА
+## COMMON MISTAKES TO AVOID
 
-**НЕ пытайся создавать CameraPoints сам.** Просто сообщи:
+**DON'T** take multiple screenshots without moving camera — you'll get identical files
 
-```
-=== SHOWCASE FAILED ===
+**DON'T** forget to enable/disable lights — screenshots will be too dark or lights left on
 
-Error: [текст ошибки]
+**DON'T** skip the rename step — all files will overwrite each other as `game.png`
 
-CameraPoints must be created by world-builder.
-```
+**DO** use MCP run_code for ALL Roblox operations
+
+**DO** use Bash for screenshot_game.py and file operations
+
+**DO** replace `{CAMERA_POINT_NAME}` with actual names from Step 1
 
 ---
 
-## КОГДА ИСПОЛЬЗОВАТЬ
+## VERIFICATION
 
-После world-builder закончил уровень:
-1. world-builder создаёт комнаты + CameraPoints
-2. showcase-photographer делает скриншоты
-3. claudezilla постит в Twitter
+After all screenshots, verify they're different:
+
+```bash
+dir C:\claudeblox\screenshots\showcase\*.png
+```
+
+Check file sizes. If all files are identical size → something went wrong, camera didn't move between shots.
+
+---
+
+## IF SOMETHING FAILS
+
+If CameraPoint not found:
+```
+=== SHOWCASE FAILED ===
+Error: CameraPoint "{name}" not found
+World-builder must create CameraPoints.
+```
+
+**DO NOT try to create CameraPoints yourself.** That's world-builder's job.
