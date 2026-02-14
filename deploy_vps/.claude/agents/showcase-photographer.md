@@ -143,19 +143,115 @@ Loop through the entire list from Step 1. Each CameraPoint = one screenshot.
 
 ---
 
-### STEP 5: Report results
+### STEP 5a: AUTOMATED VERIFICATION
 
+**Before reporting, verify through facts.**
+
+#### 1. Recall CameraPoint count from STEP 1
+You parsed JSON. How many CameraPoints were found? Call it `EXPECTED_COUNT`.
+
+#### 2. Count screenshots created
+```bash
+dir C:\claudeblox\screenshots\showcase\*.png /b 2>nul | find /c /v ""
+```
+Call result `ACTUAL_COUNT`.
+
+#### 3. Check file sizes for duplicates
+```bash
+dir C:\claudeblox\screenshots\showcase\*.png
+```
+If ALL files have IDENTICAL size → camera didn't move, screenshots are copies.
+
+#### 4. Verification checks
+
+| Check | Pass | Fail |
+|-------|------|------|
+| CameraPoints exist | EXPECTED > 0 | EXPECTED = 0 |
+| Count match | EXPECTED == ACTUAL | EXPECTED ≠ ACTUAL |
+| Uniqueness | File sizes vary | All sizes identical |
+
+**If ALL checks PASS → proceed to STEP 5b with VERDICT: READY FOR TWITTER**
+**If ANY check FAILS → proceed to STEP 5b with VERDICT: FAILED**
+
+---
+
+### STEP 5b: REPORT WITH VERDICT
+
+#### If verification PASSED:
 ```
 === SHOWCASE SCREENSHOTS COMPLETE ===
 
-Screenshots taken: {COUNT}
+VERIFICATION:
+✓ CameraPoints found: {EXPECTED}
+✓ Screenshots taken: {ACTUAL}
+✓ Count match: YES
+✓ All unique: YES (file sizes vary)
 
-Files:
+FILES:
 {LIST OF ACTUAL FILES CREATED}
 
 Location: C:/claudeblox/screenshots/showcase/
 
-READY FOR TWITTER
+VERDICT: READY FOR TWITTER
+```
+
+#### If verification FAILED:
+
+**Scenario: No CameraPoints found (EXPECTED = 0)**
+```
+=== SHOWCASE VERIFICATION FAILED ===
+
+VERIFICATION:
+✗ CameraPoints found: 0
+
+VERDICT: FAILED
+
+World-builder must create CameraPoints before showcase screenshots can be taken.
+DO NOT post to Twitter.
+```
+
+**Scenario: Screenshot capture failed (ACTUAL = 0, EXPECTED > 0)**
+```
+=== SHOWCASE VERIFICATION FAILED ===
+
+VERIFICATION:
+✗ CameraPoints found: {EXPECTED}
+✗ Screenshots taken: 0
+
+VERDICT: FAILED
+
+Screenshot capture failed. Check MCP connection and camera positioning.
+DO NOT post to Twitter.
+```
+
+**Scenario: Count mismatch (EXPECTED ≠ ACTUAL)**
+```
+=== SHOWCASE VERIFICATION FAILED ===
+
+VERIFICATION:
+✗ CameraPoints found: {EXPECTED}
+✗ Screenshots taken: {ACTUAL}
+✗ Missing: {EXPECTED - ACTUAL} screenshots
+
+VERDICT: FAILED
+
+Not all CameraPoints were captured. Review Step 3 loop.
+DO NOT post to Twitter.
+```
+
+**Scenario: All screenshots identical (same file sizes)**
+```
+=== SHOWCASE VERIFICATION FAILED ===
+
+VERIFICATION:
+✓ CameraPoints found: {EXPECTED}
+✓ Screenshots taken: {ACTUAL}
+✗ All unique: NO (all file sizes identical)
+
+VERDICT: FAILED
+
+Camera didn't move between shots — all screenshots are copies.
+DO NOT post to Twitter.
 ```
 
 ---
@@ -173,18 +269,6 @@ READY FOR TWITTER
 **DO** use Bash for screenshot_game.py and file operations
 
 **DO** replace `{CAMERA_POINT_NAME}` with actual names from Step 1
-
----
-
-## VERIFICATION
-
-After all screenshots, verify they're different:
-
-```bash
-dir C:\claudeblox\screenshots\showcase\*.png
-```
-
-Check file sizes. If all files are identical size → something went wrong, camera didn't move between shots.
 
 ---
 

@@ -584,31 +584,76 @@ python C:/claudeblox/scripts/obs_control.py --scene CODING
 
 ### STEP 7: PLAY-TEST
 
-**first, clear temp screenshots folder:**
+**7a. Preparation:**
 ```bash
 del /Q C:\claudeblox\screenshots\temp\* 2>nul
-```
-
-**switch OBS + call computer-player:**
-
-```
 python C:/claudeblox/scripts/obs_control.py --scene PLAYING
+```
 
+**7b. Start infrastructure:**
+```powershell
+# Start bridge (writes game_state.json)
+Start-Process python -ArgumentList "C:/claudeblox/scripts/game_bridge.py" -WindowStyle Hidden
+
+# Wait for bridge to start
+Start-Sleep -Seconds 2
+
+# Verify bridge is running
+Test-NetConnection -ComputerName localhost -Port 8585
+
+# Start watcher (auto-executes actions.txt)
+Start-Process python -ArgumentList "C:/claudeblox/scripts/action_watcher.py" -WindowStyle Hidden
+
+# Wait for stability
+Start-Sleep -Seconds 2
+```
+
+**7c. Start game (F5 in Roblox Studio):**
+```powershell
+python C:/claudeblox/scripts/action.py --key f5
+Start-Sleep -Seconds 3
+```
+
+**7d. Call computer-player:**
+```
 Task(
   subagent_type: "computer-player",
   description: "play-test and complete level",
   prompt: "Play the game, test everything, and try to COMPLETE THE LEVEL.
 
+⚠️ IMPORTANT: Infrastructure is ALREADY RUNNING!
+- game_bridge.py is running (port 8585)
+- action_watcher.py is running (auto-executes actions.txt)
+- Game is in PLAY mode (F5 already pressed)
+
+DO NOT start bridge, watcher, or press PLAY.
+DO NOT stop processes when done.
+Just read game_state.json and write actions.txt.
+
 GOALS:
 1. Test interactions (doors, items, enemies)
 2. Find bugs and issues
 3. Complete the level (find items, reach exit)
+4. MOVE ACTIVELY — viewers must see constant action!
 
 Report:
 - Level completed? yes/no
 - Issues Found: [bugs, stuck points, visual problems]
 - What worked well"
 )
+```
+
+**7e. Stop everything (after computer-player returns):**
+```powershell
+# Stop game (Shift+F5)
+python C:/claudeblox/scripts/action.py --combo shift+f5
+Start-Sleep -Seconds 1
+
+# Kill bridge (port 8585)
+Get-NetTCPConnection -LocalPort 8585 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }
+
+# Kill watcher
+Get-Process python -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -match "action_watcher" } | Stop-Process -Force
 ```
 
 this step is mandatory. no exceptions. no skipping.
