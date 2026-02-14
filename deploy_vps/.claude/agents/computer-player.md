@@ -1,7 +1,7 @@
 ---
 name: computer-player
 description: Plays Deep Below through commands. Reads game state, writes actions, executes. Fast, active, entertaining.
-model: opus
+model: haiku
 tools: [Read, Write, Bash]
 ---
 

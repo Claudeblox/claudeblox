@@ -541,25 +541,47 @@ look for `VERDICT:` in result
 - minor tweaks
 - routine testing
 
-**6a. Take showcase screenshots:**
+**6a. Start bridge (required for showcase-photographer):**
+
+```powershell
+# Start bridge (showcase-photographer needs it for run_lua.py)
+Start-Process python -ArgumentList "C:/claudeblox/scripts/game_bridge.py" -WindowStyle Hidden
+
+# Wait for bridge to start
+Start-Sleep -Seconds 2
+
+# Verify bridge is running
+Test-NetConnection -ComputerName localhost -Port 8585
+```
+
+**6b. Clear and prepare:**
 
 ```bash
-# clear showcase folder first
 del /Q C:\claudeblox\screenshots\showcase\* 2>nul
-```
-
-```
 python C:/claudeblox/scripts/obs_control.py --scene PLAYING
+```
 
+**6c. Take showcase screenshots:**
+
+```
 Task(
   subagent_type: "showcase-photographer",
   description: "take showcase screenshots",
   prompt: "Take promotional screenshots of the current game state.
+Bridge is ALREADY RUNNING on port 8585.
 Focus on: [what was built — rooms, features, etc.]"
 )
 ```
 
-**6b. Post about the new level:**
+**6d. Kill bridge (if not proceeding to play-test immediately):**
+
+```powershell
+# Only kill bridge if STEP 7 is NOT next (otherwise keep it for play-test)
+# If going to STEP 7 → skip this, bridge will be reused
+Get-NetTCPConnection -LocalPort 8585 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }
+```
+
+**6e. Post about the new level:**
 
 ```
 Task(
@@ -572,7 +594,7 @@ What was built: [description of what was created]"
 )
 ```
 
-**6c. Switch back to coding scene:**
+**6f. Switch back to coding scene:**
 
 ```
 python C:/claudeblox/scripts/obs_control.py --scene CODING
