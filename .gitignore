@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Screenshots (runtime generated)
+screenshots/
+
+# Logs (runtime generated)
+logs/
+*.log
+current_log.txt
+
+# Game bridge temp files
+actions.txt
+game_state.json
+
+# OS
+.DS_Store
+Thumbs.db
