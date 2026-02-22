@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="https://pbs.twimg.com/profile_banners/1925925498498424832/1748013842/1500x500" alt="ClaudeBlox Banner" width="100%"/>
-</p>
-
 <h1 align="center">ClaudeBlox</h1>
 
 <p align="center">
@@ -9,10 +5,21 @@
 </p>
 
 <p align="center">
-  <a href="https://www.claude-blox.com/">Website</a> •
-  <a href="https://x.com/claudebl0x">Twitter</a> •
-  <a href="https://dexscreener.com/solana/DSyAs4y6siDcC3qYaz4yhhXZSu6ShMgjYvrn7xD1pump">Dexscreener</a> •
-  <a href="https://pump.fun/coin/DSyAs4y6siDcC3qYaz4yhhXZSu6ShMgjYvrn7xD1pump">Pump.fun</a>
+  <a href="https://www.claude-blox.com/">
+    <img src="https://img.shields.io/badge/Website-claude--blox.com-blue?style=for-the-badge&logo=google-chrome&logoColor=white" alt="Website"/>
+  </a>
+  <a href="https://x.com/claudebl0x">
+    <img src="https://img.shields.io/badge/Twitter-@claudebl0x-1DA1F2?style=for-the-badge&logo=x&logoColor=white" alt="Twitter"/>
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://dexscreener.com/solana/DSyAs4y6siDcC3qYaz4yhhXZSu6ShMgjYvrn7xD1pump">
+    <img src="https://img.shields.io/badge/Dexscreener-Chart-green?style=for-the-badge&logo=bitcoin&logoColor=white" alt="Dexscreener"/>
+  </a>
+  <a href="https://pump.fun/coin/DSyAs4y6siDcC3qYaz4yhhXZSu6ShMgjYvrn7xD1pump">
+    <img src="https://img.shields.io/badge/Pump.fun-Token-orange?style=for-the-badge&logo=solana&logoColor=white" alt="Pump.fun"/>
+  </a>
 </p>
 
 <p align="center">
@@ -350,22 +357,30 @@ Your obby is ready to play!
 
 ---
 
-## Links
-
-<p align="center">
-  <a href="https://www.claude-blox.com/"><strong>Website</strong></a> •
-  <a href="https://x.com/claudebl0x"><strong>Twitter / X</strong></a> •
-  <a href="https://dexscreener.com/solana/DSyAs4y6siDcC3qYaz4yhhXZSu6ShMgjYvrn7xD1pump"><strong>Dexscreener</strong></a> •
-  <a href="https://pump.fun/coin/DSyAs4y6siDcC3qYaz4yhhXZSu6ShMgjYvrn7xD1pump"><strong>Pump.fun</strong></a>
-</p>
-
----
-
 ## License
 
 MIT License. Build whatever you want.
 
 ---
+
+<p align="center">
+  <img src="https://pbs.twimg.com/profile_banners/1925925498498424832/1748013842/1500x500" alt="ClaudeBlox Banner" width="100%"/>
+</p>
+
+<p align="center">
+  <a href="https://www.claude-blox.com/">
+    <img src="https://img.shields.io/badge/🌐_Website-claude--blox.com-blue?style=for-the-badge" alt="Website"/>
+  </a>
+  <a href="https://x.com/claudebl0x">
+    <img src="https://img.shields.io/badge/𝕏_Twitter-@claudebl0x-000000?style=for-the-badge" alt="Twitter"/>
+  </a>
+  <a href="https://dexscreener.com/solana/DSyAs4y6siDcC3qYaz4yhhXZSu6ShMgjYvrn7xD1pump">
+    <img src="https://img.shields.io/badge/📊_Dexscreener-Chart-00C853?style=for-the-badge" alt="Dexscreener"/>
+  </a>
+  <a href="https://pump.fun/coin/DSyAs4y6siDcC3qYaz4yhhXZSu6ShMgjYvrn7xD1pump">
+    <img src="https://img.shields.io/badge/🚀_Pump.fun-Token-FF6D00?style=for-the-badge" alt="Pump.fun"/>
+  </a>
+</p>
 
 <p align="center">
   <strong>Built by the claudeblox_dev team</strong>
