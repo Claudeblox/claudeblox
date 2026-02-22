@@ -56,7 +56,7 @@ No coding required. No 3D modeling. Just describe and watch.
                                     └──────────────────┬──────────────────┘
                                                        ▼
     ┌──────────────────────────────────────────────────────────────────────────────────────────┐
-    │                              16 SPECIALIZED AI AGENTS                                    │
+    │                              17 SPECIALIZED AI AGENTS                                    │
     │                                                                                          │
     │  ┌─────────────────────────────────────────────────────────────────────────────────────┐ │
     │  │  🏗️ ARCHITECTURE & PLANNING                                                         │ │
@@ -75,6 +75,7 @@ No coding required. No 3D modeling. Just describe and watch.
     │  ┌─────────────────────────────────────────────────────────────────────────────────────┐ │
     │  │  🌍 WORLD BUILDING                                                                  │ │
     │  │  ├── world-builder       → constructs 3D environments via MCP                       │ │
+    │  │  ├── detail-architect    → adds baseboards, pipes, door frames, vents               │ │
     │  │  ├── set-dresser         → adds props, furniture, atmosphere                        │ │
     │  │  └── enemy-designer      → creates NPCs with AI behavior                            │ │
     │  └─────────────────────────────────────────────────────────────────────────────────────┘ │
@@ -183,7 +184,7 @@ Watch your game come to life.
 ```
 claudeblox/
 ├── .claude/
-│   └── agents/                    # 16 Specialized AI agents
+│   └── agents/                    # 17 Specialized AI agents
 │       │
 │       │  # Architecture & Planning
 │       ├── roblox-architect.md        # Designs game architecture, services, world layout
@@ -197,6 +198,7 @@ claudeblox/
 │       │
 │       │  # World Building
 │       ├── world-builder.md           # Builds 3D environments from primitives
+│       ├── detail-architect.md        # Adds architectural details — pipes, vents, baseboards
 │       ├── set-dresser.md             # Adds props, furniture, details
 │       ├── enemy-designer.md          # Creates enemy AI and behavior
 │       │
@@ -222,10 +224,6 @@ claudeblox/
 │   ├── game_bridge.py             # HTTP server (port 8585) receives game state from Roblox
 │   ├── screenshot_game.py         # Captures Roblox viewport for AI analysis
 │   │
-│   │  # Python - System Utilities
-│   ├── model_manager.py           # Tracks usage, switches Opus→Sonnet to avoid rate limits
-│   ├── obs_control.py             # Switches OBS scenes (CODING vs PLAYING)
-│   ├── keep_alive.pyw             # Prevents Windows from sleeping during long sessions
 │   │
 │   │  # Lua - Roblox Scripts (copy these into your game)
 │   ├── AgentControl.lua           # Receives commands, moves player precisely (GO_TO, INTERACT_WITH)
@@ -244,7 +242,7 @@ claudeblox/
 
 ---
 
-## The 16 Agents
+## The 17 Agents
 
 <details>
 <summary><strong>🏗️ Architecture & Planning</strong></summary>
@@ -274,6 +272,7 @@ claudeblox/
 | Agent | Description |
 |-------|-------------|
 | **world-builder** | Technical environment builder (12 years). Precision-builds 3D environments via MCP — room geometry, lighting, doors, tagged objects. Floor-scale (500+ parts) to detail-scale. |
+| **detail-architect** | Architectural detail specialist. Fills the gap between bare geometry and props — baseboards, pipe runs, door frames, vent grates, cable conduits. Works holistically across the entire map because infrastructure flows between rooms. |
 | **set-dresser** | Theatrical set dresser (15 years). Decorative props from primitives. Every prop cluster tells a micro-story — half-empty coffee mug, papers mid-spread, chair pushed back. |
 | **enemy-designer** | AI programmer & creature designer (10+ years). Creates NPCs from primitives, state machine AI with PathfindingService, raycasting detection. Complete enemy systems. |
 
@@ -286,7 +285,7 @@ claudeblox/
 |-------|-------------|
 | **ui-designer** | UI/UX designer (10+ years). Transforms programmer-default UI to genre-appropriate, mobile-safe, polished interface. UIGradients, UIStroke, TweenService animations. |
 | **vfx-designer** | VFX artist (12+ years). Environmental particles — dust in light shafts, sparks from damaged fixtures, steam from pipes, fog on floors. Mobile-optimized. |
-| **sound-designer** | Audio director (10+ years, 5 in horror). Layered audio — base drones, mid environmental detail, spatial sources. Silence is a sound. Audio tells stories. |
+| **sound-designer** | Audio director (10+ years). Layered audio — base drones, mid environmental detail, spatial sources. Adapts to any genre: tension for horror, energy for tycoon, wonder for adventure. |
 | **showcase-photographer** | Virtual camera operator. Captures promotional screenshots from CameraPoints. Beauty shots for social media. |
 
 </details>
@@ -317,6 +316,9 @@ claudeblox/
           │                   │                   │
           ▼                   ▼                   ▼
      (narrative)        (game scripts)     (3D environment)
+                              │                   │
+                              │                   ▼
+                              │           detail-architect
                               │                   │
                               │           ┌───────┴───────┐
                               │           ▼               ▼
@@ -407,7 +409,7 @@ Your obby is ready to play!
 
 - [x] Computer-player improvements — Plays like a real player, better camera
 - [x] Roblox-architect expansion — 5 new sections: Detail Architecture, Lighting, Game Feel, Art Direction, Part Budget
-- [x] 16 specialized agents — Full development pipeline
+- [x] 17 specialized agents — Full development pipeline
 
 ### In Progress 🔨
 

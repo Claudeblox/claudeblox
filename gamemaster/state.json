@@ -1,0 +1,13 @@
+{
+  "current_cycle": 0,
+  "game_status": "new",
+  "last_action": "initialized",
+  "pending_fixes": [],
+  "completed_features": [],
+  "next_planned": [],
+  "stats": {
+    "total_scripts": 0,
+    "total_parts": 0,
+    "last_playtest": null
+  }
+}
