@@ -364,7 +364,7 @@ MIT License. Build whatever you want.
 ---
 
 <p align="center">
-  <img src="https://pbs.twimg.com/profile_banners/1925925498498424832/1748013842/1500x500" alt="ClaudeBlox Banner" width="100%"/>
+  <img src="https://pbs.twimg.com/profile_banners/2012465914944376832/1771666655/1500x500" alt="ClaudeBlox Banner" width="100%"/>
 </p>
 
 <p align="center">
