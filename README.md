@@ -178,6 +178,72 @@ Watch your game come to life.
 
 ---
 
+## Project Structure
+
+```
+claudeblox/
+├── .claude/
+│   └── agents/                    # 16 Specialized AI agents
+│       │
+│       │  # Architecture & Planning
+│       ├── roblox-architect.md        # Designs game architecture, services, world layout
+│       ├── ai-developer.md            # High-level development orchestration
+│       ├── story-teller.md            # Creates narrative, lore, environmental storytelling
+│       │
+│       │  # Code & Scripts
+│       ├── luau-scripter.md           # Writes production-ready Luau code
+│       ├── luau-reviewer.md           # Code review, finds bugs before runtime
+│       ├── general-purpose-luau-notes.md  # Luau best practices reference
+│       │
+│       │  # World Building
+│       ├── world-builder.md           # Builds 3D environments from primitives
+│       ├── set-dresser.md             # Adds props, furniture, details
+│       ├── enemy-designer.md          # Creates enemy AI and behavior
+│       │
+│       │  # Visual & Audio
+│       ├── ui-designer.md             # Creates user interface elements
+│       ├── vfx-designer.md            # Adds visual effects and particles
+│       ├── sound-designer.md          # Designs audio landscape
+│       ├── showcase-photographer.md   # Takes promotional screenshots
+│       │
+│       │  # Testing & Publishing
+│       ├── roblox-playtester.md       # Structural QA testing
+│       ├── computer-player.md         # Plays the game, finds gameplay bugs
+│       └── roblox-publisher.md        # Publishes game to Roblox
+│
+├── scripts/              # Utilities and game integration
+│   │
+│   │  # Python - Player Control System
+│   ├── execute_actions.py         # Parses commands (FORWARD, TURN, INTERACT) and executes them
+│   ├── action.py                  # Low-level keyboard simulation via pyautogui
+│   ├── action_watcher.py          # Monitors actions.txt, auto-executes when file changes
+│   │
+│   │  # Python - Game Communication
+│   ├── game_bridge.py             # HTTP server (port 8585) receives game state from Roblox
+│   ├── screenshot_game.py         # Captures Roblox viewport for AI analysis
+│   │
+│   │  # Python - System Utilities
+│   ├── model_manager.py           # Tracks usage, switches Opus→Sonnet to avoid rate limits
+│   ├── obs_control.py             # Switches OBS scenes (CODING vs PLAYING)
+│   ├── keep_alive.pyw             # Prevents Windows from sleeping during long sessions
+│   │
+│   │  # Lua - Roblox Scripts (copy these into your game)
+│   ├── AgentControl.lua           # Receives commands, moves player precisely (GO_TO, INTERACT_WITH)
+│   ├── GameStateBridge.lua        # Sends player position, nearby objects to AI every second
+│   ├── FirstPersonCamera.lua      # Locks camera to horizontal first-person view
+│   └── EditorLighting.lua         # Quick lighting presets for horror/bright modes
+│
+├── gamemaster/           # Game state and documents
+│   ├── state.json                 # Current progress
+│   ├── architecture.md            # Game design doc
+│   └── buglist.md                 # Known issues
+│
+├── CLAUDE.md             # Main instructions for AI
+└── README.md             # You are here
+```
+
+---
+
 ## The 16 Agents
 
 <details>
