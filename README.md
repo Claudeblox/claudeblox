@@ -56,7 +56,7 @@ No coding required. No 3D modeling. Just describe and watch.
                                     └──────────────────┬──────────────────┘
                                                        ▼
     ┌──────────────────────────────────────────────────────────────────────────────────────────┐
-    │                              18 SPECIALIZED AI AGENTS                                    │
+    │                              19 SPECIALIZED AI AGENTS                                    │
     │                                                                                          │
     │  ┌─────────────────────────────────────────────────────────────────────────────────────┐ │
     │  │  🏗️ ARCHITECTURE & PLANNING                                                         │ │
@@ -75,6 +75,7 @@ No coding required. No 3D modeling. Just describe and watch.
     │  ┌─────────────────────────────────────────────────────────────────────────────────────┐ │
     │  │  🌍 WORLD BUILDING                                                                  │ │
     │  │  ├── world-builder       → constructs 3D environments via MCP                       │ │
+    │  │  ├── interior-designer   → plans room identity, objects & story before building     │ │
     │  │  ├── detail-architect    → adds baseboards, pipes, door frames, vents               │ │
     │  │  ├── set-dresser         → adds props, furniture, atmosphere                        │ │
     │  │  └── enemy-designer      → creates NPCs with AI behavior                            │ │
@@ -185,7 +186,7 @@ Watch your game come to life.
 ```
 claudeblox/
 ├── .claude/
-│   └── agents/                    # 17 Specialized AI agents
+│   └── agents/                    # 19 Specialized AI agents
 │       │
 │       │  # Architecture & Planning
 │       ├── roblox-architect.md        # Designs game architecture, services, world layout
@@ -199,6 +200,7 @@ claudeblox/
 │       │
 │       │  # World Building
 │       ├── world-builder.md           # Builds 3D environments from primitives
+│       ├── interior-designer.md       # Plans room identity, objects & story before building
 │       ├── detail-architect.md        # Adds architectural details — pipes, vents, baseboards
 │       ├── set-dresser.md             # Adds props, furniture, details
 │       ├── enemy-designer.md          # Creates enemy AI and behavior
@@ -244,7 +246,7 @@ claudeblox/
 
 ---
 
-## The 18 Agents
+## The 19 Agents
 
 <details>
 <summary><strong>🏗️ Architecture & Planning</strong></summary>
@@ -274,8 +276,9 @@ claudeblox/
 | Agent | Description |
 |-------|-------------|
 | **world-builder** | Technical environment builder (12 years). Precision-builds 3D environments via MCP — room geometry, lighting, doors, tagged objects. Floor-scale (500+ parts) to detail-scale. |
-| **detail-architect** | Architectural detail specialist. Fills the gap between bare geometry and props — baseboards, pipe runs, door frames, vent grates, cable conduits. Works holistically across the entire map because infrastructure flows between rooms. |
-| **set-dresser** | Theatrical set dresser (15 years). Decorative props from primitives. Every prop cluster tells a micro-story — half-empty coffee mug, papers mid-spread, chair pushed back. |
+| **interior-designer** | Production designer (18 years, film & games). Planning-only — writes complete room blueprints before any props are placed. Discovers room identity (who used it, what happened), plans spatial logic and focal hierarchy, writes an object manifest with story purpose for every prop, and outputs direct build notes to set-dresser and detail-architect. No MCP. Pure planning. |
+| **detail-architect** | Architectural detail specialist. Fills the gap between bare geometry and props — baseboards, pipe runs, door frames, vent grates, cable conduits. Works holistically across the entire map because infrastructure flows between rooms. Follows interior-designer blueprints to match infrastructure character to each room's story. |
+| **set-dresser** | Theatrical set dresser (15 years). Decorative props from primitives. Executes interior-designer's room blueprint — building each prop in the manifest, in the positions described, in the conditions specified. Every cluster tells a micro-story. |
 | **enemy-designer** | AI programmer & creature designer (10+ years). Creates NPCs from primitives, state machine AI with PathfindingService, raycasting detection. Complete enemy systems. |
 
 </details>
@@ -321,14 +324,23 @@ claudeblox/
      (narrative)        (game scripts)     (3D environment)
                               │                   │
                               │                   ▼
-                              │           detail-architect
+                              │        interior-designer ×N
+                              │         (parallel, 1/room)
+                              │                   │
+                              │           (room blueprints)
                               │                   │
                               │           ┌───────┴───────┐
                               │           ▼               ▼
-                              │      set-dresser    enemy-designer
+                              │   detail-architect   set-dresser ×N
+                              │    (infrastructure)  (1/room, parallel)
                               │           │               │
                               │           ▼               ▼
-                              │      (props)          (enemies)
+                              │    (pipes, frames)    (props)
+                              │                   │
+                              │                   ▼
+                              │           enemy-designer
+                              │                   │
+                              │               (enemies)
                               │                   │
                               └─────────┬─────────┘
                                         ▼
@@ -419,6 +431,7 @@ Your obby is ready to play!
 - [x] Roblox-architect expansion — 5 new sections: Detail Architecture, Lighting, Game Feel, Art Direction, Part Budget
 - [x] 18 specialized agents — Full development pipeline
 - [x] Art Director — Film-composition reviewer: palette coherence, focal hierarchy, scale accuracy, spatial readability, atmospheric consistency across all genres
+- [x] Interior Designer — Production designer that plans room identity, spatial logic, object manifests, and story purpose before set-dresser or detail-architect place a single part
 
 ### In Progress 🔨
 
@@ -428,7 +441,6 @@ Your obby is ready to play!
 ### Planned 📋
 
 - [ ] Lighting Director — Post-processing: ColorCorrection, Bloom, cinematic atmosphere
-- [ ] Interior Designer — Room layout planning before builders work
 - [ ] Analyst — Pattern recognition across build cycles
 
 ---
