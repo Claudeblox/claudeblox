@@ -56,7 +56,7 @@ No coding required. No 3D modeling. Just describe and watch.
                                     └──────────────────┬──────────────────┘
                                                        ▼
     ┌──────────────────────────────────────────────────────────────────────────────────────────┐
-    │                              17 SPECIALIZED AI AGENTS                                    │
+    │                              18 SPECIALIZED AI AGENTS                                    │
     │                                                                                          │
     │  ┌─────────────────────────────────────────────────────────────────────────────────────┐ │
     │  │  🏗️ ARCHITECTURE & PLANNING                                                         │ │
@@ -82,6 +82,7 @@ No coding required. No 3D modeling. Just describe and watch.
     │                                                                                          │
     │  ┌─────────────────────────────────────────────────────────────────────────────────────┐ │
     │  │  🎨 VISUAL & AUDIO                                                                  │ │
+    │  │  ├── art-director        → composition review — palette, focal hierarchy, readability│ │
     │  │  ├── ui-designer         → polishes interface, mobile-safe                          │ │
     │  │  ├── vfx-designer        → particles, dust, fog, sparks                             │ │
     │  │  ├── sound-designer      → immersive layered audio                                  │ │
@@ -203,6 +204,7 @@ claudeblox/
 │       ├── enemy-designer.md          # Creates enemy AI and behavior
 │       │
 │       │  # Visual & Audio
+│       ├── art-director.md            # Composition review — palette, focal hierarchy, scale, atmosphere
 │       ├── ui-designer.md             # Creates user interface elements
 │       ├── vfx-designer.md            # Adds visual effects and particles
 │       ├── sound-designer.md          # Designs audio landscape
@@ -242,7 +244,7 @@ claudeblox/
 
 ---
 
-## The 17 Agents
+## The 18 Agents
 
 <details>
 <summary><strong>🏗️ Architecture & Planning</strong></summary>
@@ -283,6 +285,7 @@ claudeblox/
 
 | Agent | Description |
 |-------|-------------|
+| **art-director** | Film composition reviewer (16 years). Read-only — analyzes every finished room across 6 dimensions: palette coherence, focal hierarchy, scale accuracy, negative space, spatial readability, atmospheric consistency. Outputs structured correction notes tagged to responsible agents. Works for any genre. |
 | **ui-designer** | UI/UX designer (10+ years). Transforms programmer-default UI to genre-appropriate, mobile-safe, polished interface. UIGradients, UIStroke, TweenService animations. |
 | **vfx-designer** | VFX artist (12+ years). Environmental particles — dust in light shafts, sparks from damaged fixtures, steam from pipes, fog on floors. Mobile-optimized. |
 | **sound-designer** | Audio director (10+ years). Layered audio — base drones, mid environmental detail, spatial sources. Adapts to any genre: tension for horror, energy for tycoon, wonder for adventure. |
@@ -331,9 +334,14 @@ claudeblox/
                                         ▼
                          ┌──────────────┼──────────────┐
                          ▼              ▼              ▼
-                    ui-designer   vfx-designer   sound-designer
+                    vfx-designer  sound-designer  ui-designer
                          │              │              │
                          └──────────────┴──────────────┘
+                                        ▼
+                                  art-director
+                                        │
+                               (composition review)
+                                        │
                                         ▼
                                  luau-reviewer
                                         │
@@ -409,7 +417,8 @@ Your obby is ready to play!
 
 - [x] Computer-player improvements — Plays like a real player, better camera
 - [x] Roblox-architect expansion — 5 new sections: Detail Architecture, Lighting, Game Feel, Art Direction, Part Budget
-- [x] 17 specialized agents — Full development pipeline
+- [x] 18 specialized agents — Full development pipeline
+- [x] Art Director — Film-composition reviewer: palette coherence, focal hierarchy, scale accuracy, spatial readability, atmospheric consistency across all genres
 
 ### In Progress 🔨
 
@@ -419,7 +428,6 @@ Your obby is ready to play!
 ### Planned 📋
 
 - [ ] Lighting Director — Post-processing: ColorCorrection, Bloom, cinematic atmosphere
-- [ ] Art Director — Visual consistency checker
 - [ ] Interior Designer — Room layout planning before builders work
 - [ ] Analyst — Pattern recognition across build cycles
 
