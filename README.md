@@ -56,7 +56,7 @@ No coding required. No 3D modeling. Just describe and watch.
                                     └──────────────────┬──────────────────┘
                                                        ▼
     ┌──────────────────────────────────────────────────────────────────────────────────────────┐
-    │                              19 SPECIALIZED AI AGENTS                                    │
+    │                              20 SPECIALIZED AI AGENTS                                    │
     │                                                                                          │
     │  ┌─────────────────────────────────────────────────────────────────────────────────────┐ │
     │  │  🏗️ ARCHITECTURE & PLANNING                                                         │ │
@@ -83,6 +83,7 @@ No coding required. No 3D modeling. Just describe and watch.
     │                                                                                          │
     │  ┌─────────────────────────────────────────────────────────────────────────────────────┐ │
     │  │  🎨 VISUAL & AUDIO                                                                  │ │
+    │  │  ├── lighting-director   → cinematic lighting, post-processing stack                │ │
     │  │  ├── art-director        → composition review — palette, focal hierarchy, readability│ │
     │  │  ├── ui-designer         → polishes interface, mobile-safe                          │ │
     │  │  ├── vfx-designer        → particles, dust, fog, sparks                             │ │
@@ -186,7 +187,7 @@ Watch your game come to life.
 ```
 claudeblox/
 ├── .claude/
-│   └── agents/                    # 19 Specialized AI agents
+│   └── agents/                    # 20 Specialized AI agents
 │       │
 │       │  # Architecture & Planning
 │       ├── roblox-architect.md        # Designs game architecture, services, world layout
@@ -206,6 +207,7 @@ claudeblox/
 │       ├── enemy-designer.md          # Creates enemy AI and behavior
 │       │
 │       │  # Visual & Audio
+│       ├── lighting-director.md       # Cinematic lighting, post-processing stack (Bloom, ColorCorrection, Atmosphere)
 │       ├── art-director.md            # Composition review — palette, focal hierarchy, scale, atmosphere
 │       ├── ui-designer.md             # Creates user interface elements
 │       ├── vfx-designer.md            # Adds visual effects and particles
@@ -246,7 +248,7 @@ claudeblox/
 
 ---
 
-## The 19 Agents
+## The 20 Agents
 
 <details>
 <summary><strong>🏗️ Architecture & Planning</strong></summary>
@@ -288,6 +290,7 @@ claudeblox/
 
 | Agent | Description |
 |-------|-------------|
+| **lighting-director** | Cinematographer turned lighting director (14 years). Transforms flat, functional scenes into cinematic environments. Owns the full post-processing stack (ColorCorrection, Bloom, DepthOfField, Atmosphere, SunRays) and local light modification. Genre-adaptive palette. Runs after vfx-designer, before art-director. |
 | **art-director** | Film composition reviewer (16 years). Read-only — analyzes every finished room across 6 dimensions: palette coherence, focal hierarchy, scale accuracy, negative space, spatial readability, atmospheric consistency. Outputs structured correction notes tagged to responsible agents. Works for any genre. |
 | **ui-designer** | UI/UX designer (10+ years). Transforms programmer-default UI to genre-appropriate, mobile-safe, polished interface. UIGradients, UIStroke, TweenService animations. |
 | **vfx-designer** | VFX artist (12+ years). Environmental particles — dust in light shafts, sparks from damaged fixtures, steam from pipes, fog on floors. Mobile-optimized. |
@@ -349,6 +352,11 @@ claudeblox/
                     vfx-designer  sound-designer  ui-designer
                          │              │              │
                          └──────────────┴──────────────┘
+                                        ▼
+                                lighting-director
+                                        │
+                               (cinematic lighting)
+                                        │
                                         ▼
                                   art-director
                                         │
@@ -429,9 +437,10 @@ Your obby is ready to play!
 
 - [x] Computer-player improvements — Plays like a real player, better camera
 - [x] Roblox-architect expansion — 5 new sections: Detail Architecture, Lighting, Game Feel, Art Direction, Part Budget
-- [x] 18 specialized agents — Full development pipeline
+- [x] 20 specialized agents — Full development pipeline
 - [x] Art Director — Film-composition reviewer: palette coherence, focal hierarchy, scale accuracy, spatial readability, atmospheric consistency across all genres
 - [x] Interior Designer — Production designer that plans room identity, spatial logic, object manifests, and story purpose before set-dresser or detail-architect place a single part
+- [x] Lighting Director — Cinematographer that transforms functional base lighting into cinematic environments. Owns the full post-processing stack (ColorCorrection, Bloom, DepthOfField, Atmosphere) and local light modification. Genre-adaptive palette
 
 ### In Progress 🔨
 
@@ -440,7 +449,6 @@ Your obby is ready to play!
 
 ### Planned 📋
 
-- [ ] Lighting Director — Post-processing: ColorCorrection, Bloom, cinematic atmosphere
 - [ ] Analyst — Pattern recognition across build cycles
 
 ---
