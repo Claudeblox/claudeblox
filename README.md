@@ -322,72 +322,59 @@ claudeblox/
                               │
                        (architecture doc)
                               │
-          ┌───────────────────┼───────────────────┐
-          ▼                   ▼                   ▼
-     story-teller       luau-scripter        world-builder
-          │                   │                   │
-          ▼                   ▼                   ▼
-     (narrative)        (game scripts)     (3D environment)
-                              │                   │
-                              │                   ▼
-                              │        interior-designer ×N
-                              │         (parallel, 1/room)
-                              │                   │
-                              │           (room blueprints)
-                              │                   │
-                              │           ┌───────┴───────┐
-                              │           ▼               ▼
-                              │   detail-architect   set-dresser ×N
-                              │    (infrastructure)  (1/room, parallel)
-                              │           │               │
-                              │           ▼               ▼
-                              │    (pipes, frames)    (props)
-                              │                   │
-                              │                   ▼
-                              │           enemy-designer
-                              │                   │
-                              │               (enemies)
-                              │                   │
-                              └─────────┬─────────┘
-                                        ▼
-                         ┌──────────────┼──────────────┐
-                         ▼              ▼              ▼
-                    vfx-designer  sound-designer  ui-designer
-                         │              │              │
-                         └──────────────┴──────────────┘
-                                        ▼
-                                lighting-director
-                                        │
-                               (cinematic lighting)
-                                        │
-                                        ▼
-                                  art-director
-                                        │
-                               (composition review)
-                                        │
-                                        ▼
-                                 luau-reviewer
-                                        │
-                                  (code review)
-                                        │
-                                        ▼
-                               roblox-playtester
-                                        │
-                               (structural tests)
-                                        │
-                                        ▼
-                                computer-player
-                                        │
-                                (plays the game)
-                                        │
-                         ┌──────────────┴──────────────┐
-                         ▼                             ▼
-                   Bugs found?                   All good?
-                         │                             │
-                         ▼                             ▼
-                  Fix & repeat                 roblox-publisher
-                                                       │
-                                                (publish game)
+                    ┌─────────┴─────────┐
+                    ▼                   ▼
+              luau-scripter        world-builder
+                    │                   │
+                    │                   ▼
+                    │        interior-designer ×N
+                    │         (parallel, 1/room)
+                    │                   │
+                    │           (room blueprints)
+                    │                   │
+                    │           ┌───────┴───────┐
+                    │           ▼               ▼
+                    │   detail-architect   set-dresser ×N
+                    │    (infrastructure)  (1/room, parallel)
+                    │           │               │
+                    │           └───────┬───────┘
+                    │                   ▼
+                    │            sound-designer
+                    │                   │
+                    │             vfx-designer
+                    │                   │
+                    │           lighting-director
+                    │                   │
+                    │             art-director
+                    │            (composition review)
+                    │                   │
+                    │            enemy-designer
+                    │                   │
+                    │             story-teller
+                    │              (narrative)
+                    │                   │
+                    └─────────┬─────────┘
+                              ▼
+                        luau-reviewer
+                           (code review)
+                              │
+                          ui-designer
+                           (UI polish)
+                              │
+                      roblox-playtester
+                       (structural tests)
+                              │
+                        computer-player
+                         (plays the game)
+                              │
+               ┌──────────────┴──────────────┐
+               ▼                             ▼
+         Bugs found?                   All good?
+               │                             │
+               ▼                             ▼
+        Fix & repeat                 roblox-publisher
+                                             │
+                                      (publish game)
 ```
 
 ---
@@ -444,11 +431,7 @@ Your obby is ready to play!
 - [x] Art Director — Film-composition reviewer: palette coherence, focal hierarchy, scale accuracy, spatial readability, atmospheric consistency across all genres
 - [x] Interior Designer — Production designer that plans room identity, spatial logic, object manifests, and story purpose before set-dresser or detail-architect place a single part
 - [x] Lighting Director — Cinematographer that transforms functional base lighting into cinematic environments. Owns the full post-processing stack (ColorCorrection, Bloom, DepthOfField, Atmosphere) and local light modification. Genre-adaptive palette
-
-### In Progress 🔨
-
-- [ ] Diagnose scripted patterns — Remove hardcoded examples agents copy
-- [ ] De-template agents — Make each output unique
+- [x] Agent system audit & de-scripting — Full diagnostic pass across all agents. Removed game-specific hardcoded patterns (luau-scripter -78%, world-builder -74%, story-teller -55%). Agents now reason from principles instead of copying previous game templates. Pipeline diagram updated across all docs.
 
 ### Planned 📋
 
