@@ -394,7 +394,7 @@ no templates, no "standard prompt." each agent is designed from scratch for thei
 
 **5. pipeline compatibility**
 
-in ClaudeBlox, agents are not isolated entities. they are part of a pipeline: architect -> scripter + builder -> reviewer -> playtester -> computer-player. the delivery format of each agent must be compatible with how the next agent (or Game Master) consumes the result.
+in ClaudeBlox, agents are not isolated entities. they are part of a pipeline with 18+ specialist agents (see CLAUDE.md for the full roster and order). the delivery format of each agent must be compatible with how the next agent (or Game Master) consumes the result.
 
 ---
 
@@ -424,24 +424,17 @@ in both cases: the prompt has been through several iterations of your own critic
 
 ---
 
-# CLAUDEBLOX SYSTEM — ARCHITECTURE
+## Pipeline Architecture
 
-```
-Game Master (autonomous controller, infinite loop)
-├── roblox-architect     -> game design (genre, core loop, architecture, world layout)
-├── luau-scripter        -> all Luau code (scripts, modules, RemoteEvents)
-├── world-builder        -> 3D world (spaces, lighting, atmosphere, UI)
-├── luau-reviewer        -> code review (security, memory, performance, deprecated)
-├── roblox-playtester    -> structural tests (7 categories)
-├── computer-player      -> plays the game (commands through actions.txt)
-├── showcase-photographer -> promo screenshots (CameraPoints + ShowcaseLight)
-└── roblox-publisher     -> publishing to Roblox
-```
+The ClaudeBlox pipeline is orchestrated by the Game Master (CLAUDE.md). The full agent roster and pipeline order is maintained there. As of the current version, the system includes 18+ specialist agents:
 
-**pipeline (order within a cycle):**
-```
-architect -> scripter + builder (parallel) -> reviewer -> playtester -> computer-player
-```
+**Build pipeline order (high level):**
+roblox-architect → luau-scripter + world-builder (parallel) → interior-designer (parallel, per room) → detail-architect → set-dresser (parallel, per room) → sound-designer → vfx-designer → lighting-director → art-director → enemy-designer → story-teller → luau-reviewer → ui-designer → roblox-playtester → computer-player → roblox-publisher
+
+**Support agents (run alongside pipeline):**
+ai-developer (background, every cycle) · showcase-photographer · roblox-architect (surgical feature additions)
+
+See CLAUDE.md for complete pipeline documentation, verification checklists, and agent handoff protocols. When designing or fixing an agent prompt, always verify your changes preserve the output format markers that CLAUDE.md parses (VERDICT:, SCRIPTS CREATED:, WORLD BUILT:, READY FOR REVIEW, etc.).
 
 **what's critical for your work:**
 
