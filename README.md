@@ -143,25 +143,28 @@ claude login
 
 ### 2. Install Roblox MCP Server
 
-- Download from [Roblox Studio MCP releases](https://github.com/Roblox/studio-rust-mcp-server/releases)
-- Place the `.exe` somewhere (e.g., `C:\tools\rbx-studio-mcp.exe`)
+- Download `rbx-studio-mcp.exe` from [Roblox Studio MCP releases](https://github.com/Roblox/studio-rust-mcp-server/releases)
+- **Run it once** — this auto-installs the Studio plugin (it will appear in the Plugins tab next time you open Studio)
+- Place the exe somewhere permanent (e.g., `C:\tools\rbx-studio-mcp.exe`)
 
 ### 3. Configure Claude Code
 
-Add to `~/.claude.json`:
-
-```json
-{
-  "mcpServers": {
-    "roblox-studio": {
-      "command": "C:\\tools\\rbx-studio-mcp.exe",
-      "args": ["--stdio"]
-    }
-  }
-}
+```bash
+claude mcp add --transport stdio roblox_studio -- C:\tools\rbx-studio-mcp.exe --stdio
 ```
 
-### 4. Clone & Run
+Verify: `claude mcp list` should show `roblox_studio` as connected.
+
+> **Fallback (manual):** Add to `~/.claude.json` under `"mcpServers"` — see [SETUP.md](SETUP.md) for details.
+
+### 4. Set Up Roblox Studio
+
+1. Open Roblox Studio and create or open your project
+2. **Publish the place:** File > Publish to Roblox As (MCP requires a published place to run)
+3. **Enable HTTP Requests:** File > Game Settings > Security > Allow HTTP Requests → On
+4. Verify: Studio Plugins tab shows the Roblox MCP plugin; Output window shows `"The MCP Studio plugin is ready for prompts."`
+
+### 5. Clone & Run
 
 ```bash
 git clone https://github.com/Claudeblox/claudeblox.git
@@ -169,7 +172,7 @@ cd claudeblox
 claude
 ```
 
-### 5. Start Building
+### 6. Start Building
 
 ```
 Build a horror escape game. 3 floors underground.
