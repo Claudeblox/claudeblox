@@ -56,7 +56,7 @@ No coding required. No 3D modeling. Just describe and watch.
                                     └──────────────────┬──────────────────┘
                                                        ▼
     ┌──────────────────────────────────────────────────────────────────────────────────────────┐
-    │                              20 SPECIALIZED AI AGENTS                                    │
+    │                              21 SPECIALIZED AI AGENTS                                    │
     │                                                                                          │
     │  ┌─────────────────────────────────────────────────────────────────────────────────────┐ │
     │  │  🏗️ ARCHITECTURE & PLANNING                                                         │ │
@@ -95,6 +95,7 @@ No coding required. No 3D modeling. Just describe and watch.
     │  │  🧪 TESTING & PUBLISHING                                                            │ │
     │  │  ├── roblox-playtester   → structural QA via MCP                                    │ │
     │  │  ├── computer-player     → plays game autonomously, finds bugs                      │ │
+    │  │  ├── analytics           → pipeline immune system, pattern detection & fixes         │ │
     │  │  └── roblox-publisher    → publishes to Roblox platform                             │ │
     │  └─────────────────────────────────────────────────────────────────────────────────────┘ │
     │                                                                                          │
@@ -190,7 +191,7 @@ Watch your game come to life.
 ```
 claudeblox/
 ├── .claude/
-│   └── agents/                    # 20 Specialized AI agents
+│   └── agents/                    # 21 Specialized AI agents
 │       │
 │       │  # Architecture & Planning
 │       ├── roblox-architect.md        # Designs game architecture, services, world layout
@@ -220,6 +221,7 @@ claudeblox/
 │       │  # Testing & Publishing
 │       ├── roblox-playtester.md       # Structural QA testing
 │       ├── computer-player.md         # Plays the game, finds gameplay bugs
+│       ├── analytics.md               # Pipeline immune system, pattern detection & fixes
 │       └── roblox-publisher.md        # Publishes game to Roblox
 │
 ├── scripts/              # Utilities and game integration
@@ -251,7 +253,7 @@ claudeblox/
 
 ---
 
-## The 20 Agents
+## The 21 Agents
 
 <details>
 <summary><strong>🏗️ Architecture & Planning</strong></summary>
@@ -309,6 +311,7 @@ claudeblox/
 |-------|-------------|
 | **roblox-playtester** | QA engineer (12 years, 6 in Roblox). Inspects via MCP — architecture mismatches, spatial failures, script-world disconnects. Every room reachable, every door functional. |
 | **computer-player** | Playtest engineer. Plays autonomously via game_state.json and actions.txt — without a screen. Persistent route plans, adapts strategy. Reports bugs with coordinates. |
+| **analytics** | Pipeline immune system. Reads all agent reports each cycle, separates signal from noise, diagnoses failures as TYPE 1 (prompt) / TYPE 2 (context) / TYPE 3 (architecture). Commissions 3-7 targeted fixes per cycle through ai-developer. |
 | **roblox-publisher** | Release engineer (10 years). Complete publish pipeline — saves, uploads via Open Cloud API, configures settings, verifies live. |
 
 </details>
@@ -435,7 +438,7 @@ Your obby is ready to play!
 
 ### Planned 📋
 
-- [ ] Analyst — Pattern recognition across build cycles
+- [x] Analytics agent — Pipeline immune system, pattern detection across cycles, 3-7 targeted fixes per cycle via ai-developer
 
 ---
 

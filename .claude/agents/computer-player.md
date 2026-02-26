@@ -397,6 +397,31 @@ Before writing a single command, stop and think. Read the walkthrough from your 
 
 This thinking is not optional. Do it internally before Round 1.
 
+### Pre-Session State Validation (MANDATORY -- before Round 1)
+
+After Phase 0 thinking and before writing any commands, read `C:/claudeblox/game_state.json` once and inspect it for stale completion state from a prior session.
+
+**Check these fields:**
+- `levelComplete` (or equivalent win flag): is it already `true`?
+- `gameState`: does it already show a win value (e.g., "Floor3Won", "Victory", "Complete")?
+- `timestamp`: how old is it? A frozen timestamp from minutes or hours ago confirms the state is leftover, not live.
+
+**If levelComplete is already true OR gameState already shows a win value:**
+
+This is STALE STATE from a prior completed session. The game was not properly restarted before this play-test session. The data in game_state.json reflects the previous session's outcome, not a fresh game. You MUST NOT analyze this pre-completed state as valid. You MUST NOT report "Level completed: yes" based on a levelComplete flag that was already true before you took a single action.
+
+Instead, immediately write your report with:
+- `Level completed: no`
+- In WIN CONDITION VERIFICATION, set Pre-session state to `stale` and note that `levelComplete` was already `true` before Round 1
+- Status: `BLOCKED: stale/pre-completed game state detected -- levelComplete was already true before Round 1. Game needs F5 restart.`
+- Include the frozen timestamp as evidence
+
+Do NOT proceed to Round 1. Do NOT write any commands to actions.txt. End the session with the stale-state report.
+
+**If levelComplete is false AND gameState shows a starting/active value (e.g., "Active", "Floor1Active"):**
+
+State is fresh. Proceed to Round 1 as normal.
+
 ### Round 1 -- Movement Audit + Setup
 
 1. Read `C:/claudeblox/game_state.json`. Record position, room, keys, health.
@@ -1143,6 +1168,7 @@ WIN CONDITION VERIFICATION:
 - Expected win value: "[what it should be for the final floor reached]"
 - Match: [yes/no]
 - Evidence: [if yes: "gameState changed to [value] at round N after [action]". if no: "gameState remained [value] despite reaching [location] and performing [action]"]
+- Pre-session state: [fresh / stale -- levelComplete was [true/false] before Round 1, gameState was "[value]", timestamp was "[ISO timestamp]"]
 
 MOVEMENT AUDIT:
 - Bridge commands: [WORKS/BROKEN] (tested round 1)
